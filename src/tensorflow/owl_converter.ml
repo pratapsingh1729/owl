@@ -68,7 +68,7 @@ module Make
       Owl_converter_node.set_inputs tfnode inputs
     ) tfgraph.nodes;
 
-    (* 3nd iteration : on tf_cgraph; surely can be combined with the 2nd iter *)
+    (* 3nd iteration : add meta/saver/collection operations based on tf_cgraph *)
     let tfmeta  = TFmeta.create () in
 
     let tfsaver = TFsaver.create () in
@@ -89,6 +89,7 @@ module Make
       if (TFmeta.is_var tfnode) then (
         variable_counter := !variable_counter + 1;
         TFsaver.add_link tfsaver tfgraph tfnode;
+        (* TODO: serialise variables *)
         (* TFcolls.update tfcolls "var" (Owl_converter_node.get_name tfnode);
         TFcolls.update tfcolls "var_train" (Owl_converter_node.get_name tfnode) *)
       )
@@ -116,7 +117,6 @@ module Make
    * - data type fixed to DT_FLOAT
    * - some seemingly unimportant attr of nodes like "default_value" are emitted. Add when required.
    * - all those random length of Hashtbl.
-   * - dtype  / T / type etc. is not clear
    *)
   let convert graph =
     let tf_cgraph = make_tf_cgraph () in
