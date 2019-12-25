@@ -49,6 +49,8 @@ let meshgrid xa xb ya yb xn yn = M.meshgrid Float64 xa xb ya yb xn yn
 
 let bernoulli ?p d = M.bernoulli Float64 ?p d
 
+let unit_basis n i = M.unit_basis Float64 n i
+
 let hadamard n = M.hadamard Float64 n
 
 let magic n = M.magic Float64 n
@@ -60,6 +62,8 @@ let of_arrays x = M.of_arrays Float64 x
 let load f = M.load Float64 f
 
 let load_txt ?sep f = M.load_txt Float64 ?sep f
+
+let load_npy f = M.load_npy Float64 f
 
 (* specific functions for float64 matrix *)
 

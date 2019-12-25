@@ -29,9 +29,6 @@ module type Sig = sig
   val ones : int array -> arr
   (** TODO *)
 
-  val eye : int -> arr
-  (** TODO *)
-
   val create : int array -> elt -> arr
   (** TODO *)
 
@@ -95,7 +92,16 @@ module type Sig = sig
   val pad : ?v:elt -> int list list -> arr -> arr
   (** TODO *)
 
+  val expand : ?hi:bool -> arr -> int -> arr
+  (** TODO *)
+
+  val squeeze : ?axis:int array -> arr -> arr
+  (** TODO *)
+   
   val concatenate : ?axis:int -> arr array -> arr
+  (** TODO *)
+
+  val concat: axis:int -> arr -> arr -> arr
   (** TODO *)
 
   val split : ?axis:int -> 'a -> 'b -> 'c
@@ -497,43 +503,7 @@ module type Sig = sig
   val copy_col_to : arr -> 'a -> 'b -> unit
   (** TODO *)
 
-  val inv : arr -> arr
-  (** TODO *)
-
-  val logdet: arr -> elt
-  (** TODO *)
-
-  val chol: ?upper:bool -> arr -> arr
-  (** TODO *)
-
-  val qr : arr -> arr * arr
-  (** TODO *)
-
-  val lq : arr -> arr * arr
-  (** TODO *)
-
-  val svd : ?thin:bool -> arr -> arr * arr * arr
-  (** TODO *)
-
-  val lyapunov : arr -> arr -> arr
-  (** TODO *)
-
-  val discrete_lyapunov : ?solver:[`default | `bilinear | `direct] -> arr -> arr -> arr
-  (** TODO *)
-
-  val linsolve : ?trans:bool -> ?typ:[`n | `u | `l] -> arr -> arr -> arr
-  (** TODO *)
-
   val diag: ?k:int -> arr -> arr
-  (** TODO *)
-
-  val diagm: ?k:int -> arr -> arr
-  (** TODO *)
-
-  val triu: ?k:int -> arr -> arr
-  (** TODO *)
-
-  val tril: ?k:int -> arr -> arr
   (** TODO *)
 
   val trace : arr -> elt
@@ -667,4 +637,54 @@ module type Sig = sig
 
   end
 
+  module Mat : sig
+
+    val eye : int -> arr
+    (** TODO *)
+
+    val diagm: ?k:int -> arr -> arr
+    (** TODO *)
+
+    val triu: ?k:int -> arr -> arr
+    (** TODO *)
+
+    val tril: ?k:int -> arr -> arr
+    (** TODO *)
+
+  end
+
+  module Linalg : sig
+    val inv : arr -> arr
+    (** TODO *)
+
+    val logdet: arr -> elt
+    (** TODO *)
+
+    val chol: ?upper:bool -> arr -> arr
+    (** TODO *)
+
+    val qr : arr -> arr * arr
+    (** TODO *)
+
+    val lq : arr -> arr * arr
+    (** TODO *)
+
+    val svd : ?thin:bool -> arr -> arr * arr * arr
+    (** TODO *)
+
+    val sylvester: arr -> arr -> arr -> arr
+    (** TODO *)
+
+    val lyapunov : arr -> arr -> arr
+    (** TODO *)
+
+    val discrete_lyapunov : ?solver:[`default | `bilinear | `direct] -> arr -> arr -> arr
+    (** TODO *)
+
+    val linsolve : ?trans:bool -> ?typ:[`n | `u | `l] -> arr -> arr -> arr
+    (** TODO *)
+
+    val care : ?diag_r:bool -> arr -> arr -> arr -> arr -> arr
+    (** TODO *)
+  end
 end

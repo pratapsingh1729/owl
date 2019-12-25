@@ -142,6 +142,12 @@ val pad : ?v:'a -> int list list -> ('a, 'b) t -> ('a, 'b) t
 val concatenate : ?axis:int -> ('a, 'b) t array -> ('a, 'b) t
 (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
+val squeeze : ?axis:int array -> ('a, 'b) t -> ('a, 'b) t
+(** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+val expand : ?hi:bool -> ('a, 'b) t -> int -> ('a, 'b) t
+(** Refer to :doc:`owl_dense_ndarray_generic` *)
+
 val split : ?axis:int -> int array -> ('a, 'b) t -> ('a, 'b) t array
 (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
@@ -715,47 +721,10 @@ val copy_col_to : ('a, 'b) t -> ('a, 'b) t -> int -> unit
 val dot : (float, 'b) t -> (float, 'b) t -> (float, 'b) t
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
-(* TODO: change float to 'a *)
-val inv : (float, 'b) t -> (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val logdet : (float, 'b) t -> float
+val diag: ?k:int -> ('a, 'b) t -> ('a, 'b) t
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
 (* TODO: change float to 'a *)
-val chol : ?upper:bool -> (float, 'b) t -> (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val qr : (float, 'b) t -> (float, 'b) t * (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val lq : (float, 'b) t -> (float, 'b) t * (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val svd : ?thin:bool -> (float, 'b) t -> (float, 'b) t * (float, 'b) t * (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val lyapunov : (float, 'b) t -> (float, 'b) t -> (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val discrete_lyapunov : ?solver:[`default | `bilinear | `direct] -> (float, 'b) t -> (float, 'b) t -> (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val linsolve: ?trans:bool -> ?typ:[`n | `u | `l] -> (float, 'b) t -> (float, 'b) t -> (float, 'b) t
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val diag: ?k:int -> (float, 'b) t -> (float, 'b) t 
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val diagm: ?k:int -> (float, 'b) t -> (float, 'b) t 
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val tril: ?k:int -> (float, 'b) t -> (float, 'b) t 
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
-val triu: ?k:int -> (float, 'b) t -> (float, 'b) t 
-(** Refer to :doc:`owl_dense_matrix_generic` *)
-
 val trace : (float, 'b) t -> float
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
@@ -1241,6 +1210,5 @@ val float_to_elt : 'a -> 'a
 
 val elt_to_float : 'a -> 'a
 (** Identity function to deal with the type conversion required by other functors. *)
-
 
 (* ends here *)

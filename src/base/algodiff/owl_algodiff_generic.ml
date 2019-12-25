@@ -14,16 +14,8 @@
 (* Functor of making AD module of different precisions *)
 
 module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
-  (* generate global tags *)
-  let _global_tag = ref 0
-
-  let tag () =
-    _global_tag := !_global_tag + 1;
-    !_global_tag
-
-
   (* include functions in the Core module *)
-  module Core = Owl_algodiff_core.Make (Owl_algodiff_types.Make (A))
+  module Core = Owl_algodiff_core.Make (A)
   include Core
 
   (* include graph conversion functions *)
@@ -31,15 +23,14 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
 
   (* instantiate operations *)
   module Ops = Owl_algodiff_ops.Make (Core)
-  module Maths = Ops.Maths
-  module Mat = Ops.Mat
-  module Arr = Ops.Arr
-  module Linalg = Ops.Linalg
-  module NN = Ops.NN
+  include Ops
 
   (* include core reverse mode functions *)
-  module Reverse = Owl_algodiff_reverse.Make (Core)
-  include Reverse
+  module Reverse = Owl_algodiff_reverse.Make (struct
+    include Core
+
+    let reverse_add = Maths.add
+  end)
 
   (* convenient wrappers *)
 
@@ -52,7 +43,10 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
     DR (p, ref (zero p), (adjoint, register, label), ref 0, i, ref 0)
 
 
-  (* derivative of f (scalar -> scalr) at x, forward ad *)
+  (* expose reverse prop: propagate gradients *)
+  let reverse_prop = Reverse.reverse_prop
+
+  (* derivative of f (scalar -> scalar) at x, forward ad *)
   let diff' f x =
     let x = make_forward x (pack_flt 1.) (tag ()) in
     let y = f x in
@@ -66,8 +60,8 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
   let grad' f x =
     let x = make_reverse x (tag ()) in
     let y = f x in
-    reverse_reset y;
-    reverse_push (pack_flt 1.) y;
+    Reverse.reverse_reset y;
+    Reverse.reverse_push (pack_flt 1.) y;
     primal y, x |> adjval
 
 
@@ -76,6 +70,8 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
 
   (* jacobian vector product of f (vector -> vector) at x along v, forward ad *)
   let jacobianv' f x v =
+    if shape x <> shape v
+    then failwith "jacobianv': vector not the same dimension as input";
     let x = make_forward x v (tag ()) in
     let y = f x in
     primal y, tangent y
@@ -88,9 +84,11 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
   let jacobianTv' f x v =
     let x = make_reverse x (tag ()) in
     let y = f x in
-    reverse_reset y;
-    reverse_push v y;
-    primal y, x |> adjval |> primal
+    if shape y <> shape v
+    then failwith "jacobianTv': vector not the same dimension as output";
+    Reverse.reverse_reset y;
+    Reverse.reverse_push v y;
+    primal y, x |> adjval
 
 
   (* transposed jacobian vector product of f (vector -> vector) at x along v, backward ad *)
@@ -98,31 +96,51 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
 
   (* jacobian of f (vector -> vector) at x, both x and y are row vectors, also return the
      original value *)
-  let jacobian' f x =
-    let y = f x |> primal in
-    let m = col_num y in
-    let n = col_num x in
-    let z = A.empty [| m; n |] in
-    (match m > n with
-    | true ->
-      Array.init n (fun i ->
-          let v = A.zeros [| 1; n |] in
-          A.(set v [| 0; i |] (float_to_elt 1.));
-          jacobianv f x (Arr v))
-      |> Array.iteri (fun i v ->
-             match v with
-             | Arr v -> A.copy_col_to (A.transpose v) z i
-             | _ -> failwith "error: jacobian")
-    | false ->
-      Array.init m (fun i ->
-          let v = A.zeros [| 1; m |] in
-          A.(set v [| 0; i |] (float_to_elt 1.));
-          jacobianTv f x (Arr v))
-      |> Array.iteri (fun i v ->
-             match v with
-             | Arr v -> A.copy_row_to v z i
-             | _ -> failwith "error: jacobian"));
-    y, Arr z
+  let jacobian' =
+    let dim_typ x =
+      match primal' x with
+      | F _   -> `float
+      | Arr x ->
+        let s = A.shape x in
+        let d = Array.length s in
+        if d > 2
+        then `arr
+        else if s.(0) = 1
+        then `row s.(1)
+        else if s.(1) = 1
+        then `col s.(0)
+        else `mat
+      | _     -> assert false
+    in
+    fun f x ->
+      let y = f x |> primal in
+      let m, n =
+        match dim_typ y, dim_typ x with
+        | `row a, `row 1 -> a, 1
+        | `row a, `row b -> a, b
+        | _              -> failwith "jacobian: input and output must both be row vectors"
+      in
+      let z = A.empty [| m; n |] in
+      (match m > n with
+      | true  ->
+        Array.init n (fun i ->
+            let v = A.zeros [| 1; n |] in
+            A.(set v [| 0; i |] (float_to_elt 1.));
+            jacobianv f x (Arr v))
+        |> Array.iteri (fun i v ->
+               match v with
+               | Arr v -> A.copy_col_to (A.transpose v) z i
+               | _     -> failwith "error: jacobian")
+      | false ->
+        Array.init m (fun i ->
+            let v = A.zeros [| 1; m |] in
+            A.(set v [| 0; i |] (float_to_elt 1.));
+            jacobianTv f x (Arr v))
+        |> Array.iteri (fun i v ->
+               match v with
+               | Arr v -> A.copy_row_to v z i
+               | _     -> failwith "error: jacobian"));
+      y, Arr z
 
 
   (* jacobian of f *)
@@ -169,6 +187,7 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
 
   (* laplacian of f *)
   let laplacian f x = F (hessian f x |> unpack_arr |> A.trace)
+
   let laplacian' f x = f x, laplacian f x
 end
 

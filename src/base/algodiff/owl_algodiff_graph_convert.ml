@@ -11,7 +11,7 @@ module Make (Core : Owl_algodiff_core_sig.Sig) = struct
     (* local function to traverse the nodes *)
     let rec push tlist =
       match tlist with
-      | [] -> ()
+      | []       -> ()
       | hd :: tl ->
         if Hashtbl.mem nodes hd = false
         then (

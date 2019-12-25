@@ -1267,6 +1267,13 @@ let argsort x =
   y
 
 
+let unit_basis k n i =
+  let x = zeros k [|n|] in
+  let a1 = Owl_const.one k in
+  Genarray.set x [|i|] a1;
+  x
+
+
 (* advanced operations *)
 
 let iteri f x =
@@ -1496,10 +1503,10 @@ let transpose ?axis x =
       let b = Array.make d 0 in
       Array.iteri (fun i j -> b.(j) <- i) a;
       let _incy = strides y in
-      let _incy = Array.map (fun j -> Int32.of_int _incy.(j)) b in
-      let _incx = Array.map Int32.of_int (strides x) in
-      let incx = Array1.of_array Int32 C_layout _incx |> genarray_of_array1 in
-      let incy = Array1.of_array Int32 C_layout _incy |> genarray_of_array1 in
+      let _incy = Array.map (fun j -> Int64.of_int _incy.(j)) b in
+      let _incx = Array.map Int64.of_int (strides x) in
+      let incx = Array1.of_array Int64 C_layout _incx |> genarray_of_array1 in
+      let incy = Array1.of_array Int64 C_layout _incy |> genarray_of_array1 in
       Owl_ndarray._ndarray_transpose (kind x) x y incx incy;
       y
     )
@@ -1525,10 +1532,10 @@ let transpose_ ~out ?axis x =
       let b = Array.make d 0 in
       Array.iteri (fun i j -> b.(j) <- i) a;
       let _incy = Owl_utils.calc_stride sy in
-      let _incy = Array.map (fun j -> Int32.of_int _incy.(j)) b in
-      let _incx = Array.map Int32.of_int (strides x) in
-      let incx = Array1.of_array Int32 C_layout _incx |> genarray_of_array1 in
-      let incy = Array1.of_array Int32 C_layout _incy |> genarray_of_array1 in
+      let _incy = Array.map (fun j -> Int64.of_int _incy.(j)) b in
+      let _incx = Array.map Int64.of_int (strides x) in
+      let incx = Array1.of_array Int64 C_layout _incx |> genarray_of_array1 in
+      let incy = Array1.of_array Int64 C_layout _incy |> genarray_of_array1 in
       Owl_ndarray._ndarray_transpose (kind x) x out incx incy
     )
   )
@@ -1821,9 +1828,16 @@ let print ?max_row ?max_col ?header ?fmt x =
 
 let pp_dsnda formatter x = Owl_pretty.pp_dsnda formatter x
 
-let save x f = Owl_io.marshal_to_file x f
+let save ~out x = Owl_io.marshal_to_file x out
 
 let load _k f = Owl_io.marshal_from_file f
+
+let save_npy ~out x = Npy.write x out
+
+let load_npy kind file =
+  match Npy.read_copy file |> Npy.to_bigarray Bigarray.c_layout kind with
+  | Some x -> x
+  | None -> failwith Printf.(sprintf "%s: incorrect format" file)
 
 let of_array k x d =
   let n = Array.fold_left (fun a b -> a * b) 1 d in

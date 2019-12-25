@@ -1,3 +1,37 @@
+### 0.7.2 (2019-12-06)
+
+* fourth order finite diff approx to grad
+* changes to improve stability of sylv/discrete_lyap
+* fix bug in concatenate function
+* add mli for owl_base_linalg_generic
+* Owl-base linalg routines: LU decomposition  (#465)
+* bug fixes
+* Update owl.opam
+
+### 0.7.1 (2019-11-27)
+
+* Add unit basis
+* Fix issue #337 and #457 (#458)
+* owl-base: drop seemingly unnecessary dependency on integers (#456)
+
+### 0.7.0 (2019-11-14)
+
+* Add unsafe network save (owlbarn/owl#429)
+* Sketch Count-Min and Heavy-Hitters
+* Various bugfixes
+* Owl_io.marshal_to_file: use to_channel
+* Do not create .owl folder when loading owl library
+* Re-design of exceptions and replace asserts with verify
+* Add OWL_DISABLE_LAPACKE_LINKING_FLAG
+* Reorganise Algodiff module
+* Add parameter support to Zoo
+* Two new features in algodiff: eye and linsolve (triangular option) + improved stability of qr and chol
+* Implemented solve triangular
+* Added linsolve and lq reverse-mode differentiation
+* Fix build on archlinux (pkg-config cblas)
+* Add median and sort along in ndarray
+* Improve stability of lyapunov gradient tests
+
 ### 0.6.0 (2019-07-17)
 
 * Add unsafe network save (#429)

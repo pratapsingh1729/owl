@@ -41,9 +41,15 @@ let logspace ?base a b n = M.logspace Complex32 ?base a b n
 
 let bernoulli ?p d = M.bernoulli Complex32 ?p d
 
+let unit_basis n i = M.unit_basis Complex32 n i
+
 let load f = M.load Complex32 f
 
+let load_npy f = M.load_npy Complex32 f
+
 let of_array x d = M.of_array Complex32 x d
+
+let of_arrays x = M.of_arrays Complex32 x
 
 let mmap fd ?pos shared dims = Unix.map_file fd ?pos Complex32 c_layout shared dims
 

@@ -47,6 +47,8 @@ let meshgrid xa xb ya yb xn yn = M.meshgrid Complex64 xa xb ya yb xn yn
 
 let bernoulli ?p d = M.bernoulli Complex64 ?p d
 
+let unit_basis n i = M.unit_basis Complex64 n i
+
 let hadamard n = M.hadamard Complex64 n
 
 let magic n = M.magic Complex64 n
@@ -58,6 +60,8 @@ let of_arrays x = M.of_arrays Complex64 x
 let load f = M.load Complex64 f
 
 let load_txt ?sep f = M.load_txt Complex64 ?sep f
+
+let load_npy f = M.load_npy Complex64 f
 
 (* specific functions for complex64 matrix *)
 

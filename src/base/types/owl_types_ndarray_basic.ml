@@ -24,8 +24,6 @@ module type Sig = sig
 
   val zeros : int array -> arr
 
-  val eye : int -> arr
-
   val ones : int array -> arr
 
   val create : int array -> elt -> arr
@@ -71,6 +69,10 @@ module type Sig = sig
   val concatenate : ?axis:int -> arr array -> arr
 
   val split : ?axis:int -> int array -> arr -> arr array
+
+  val expand : ?hi:bool -> arr -> int -> arr
+
+  val squeeze : ?axis:int array -> arr -> arr
 
   val draw : ?axis:int -> arr -> int -> arr * int array
 
@@ -305,31 +307,7 @@ module type Sig = sig
 
   val dot : arr -> arr -> arr
 
-  val inv : arr -> arr
-
-  val logdet: arr -> elt
-
-  val chol : ?upper:bool -> arr -> arr
-
-  val svd : ?thin:bool -> arr -> arr * arr * arr
-
-  val qr : arr -> arr * arr
-
-  val lq : arr -> arr * arr
-
-  val lyapunov: arr -> arr -> arr
-
-  val discrete_lyapunov: ?solver:[`default | `bilinear | `direct] -> arr -> arr -> arr
-
-  val linsolve: ?trans:bool -> ?typ:[`n | `u | `l] -> arr -> arr -> arr
-
   val diag : ?k:int -> arr -> arr
-
-  val diagm : ?k:int -> arr -> arr
-
-  val triu: ?k:int -> arr -> arr
-
-  val tril: ?k:int -> arr -> arr
 
   val trace : arr -> elt
 

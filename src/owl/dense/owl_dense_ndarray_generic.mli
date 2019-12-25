@@ -148,6 +148,11 @@ contains phase angles. Note that the behaviour is undefined if ``rho`` has
 negative elelments or ``theta`` has infinity elelments.
  *)
 
+val unit_basis : ('a, 'b) kind -> int -> int -> ('a, 'b) t
+(**
+``unit_basis k n i`` returns a unit basis vector with ``i``th element set to 1.
+ *)
+
 
 (** {6 Obtain basic properties}  *)
 
@@ -1045,9 +1050,9 @@ val pp_dsnda : Format.formatter -> ('a, 'b) t -> unit [@@ocaml.toplevel_printer]
 ``pp_dsnda`` only prints out parts of the ndarray.
  *)
 
-val save : ('a, 'b) t -> string -> unit
+val save : out:string -> ('a, 'b) t -> unit
 (**
-``save x s`` serialises a ndarray ``x`` to a file of name ``s``.
+``save ~out x`` serialises a ndarray ``x`` to a file of name ``out``.
  *)
 
 val load : ('a, 'b) kind -> string -> ('a, 'b) t
@@ -1056,6 +1061,18 @@ val load : ('a, 'b) kind -> string -> ('a, 'b) t
 It is necesssary to specify the type of the ndarray with paramater ``k``.
 *)
 
+val save_npy : out:string -> ('a, 'b) t -> unit
+(**
+``save_npy ~out x`` saves the matrix ``x`` into a npy file ``out``. This function
+is implemented using npy-ocaml https://github.com/LaurentMazare/npy-ocaml.
+ *)
+
+val load_npy : ('a, 'b) kind -> string -> ('a, 'b) t
+(**
+``load_npy file`` load a npy ``file`` into a matrix of type ``k``. If the matrix is
+in the file is not of type ``k``, fails with ``[file]: incorrect format``. This
+function is implemented using npy-ocaml https://github.com/LaurentMazare/npy-ocaml.
+ *)
 
 (** {6 Unary math operators }  *)
 

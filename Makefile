@@ -41,6 +41,7 @@ uninstall:
 doc:
 	opam install -y odoc
 	dune build @doc
+	cat doc/mathjax.js doc/highlight.pack.js >> _build/default/_doc/_html/highlight.pack.js
 
 .PHONY: distclean cleanall
 distclean cleanall:
@@ -63,3 +64,11 @@ release:
 	dune-release opam pkg -p owl-zoo
 	dune-release opam pkg -p owl-top
 	dune-release opam submit -p $(PKGS)
+
+.PHONY: format
+format:
+	dune build @fmt --auto-promote
+
+.PHONY: cloc
+loc:
+	cloc src/
