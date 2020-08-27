@@ -1,14 +1,12 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 module type Sig = sig
-
   module Optimise : Owl_optimise_generic_sig.Sig
 
   open Optimise.Algodiff
-
 
   (** {6 Type definition} *)
 
@@ -17,7 +15,6 @@ module type Sig = sig
 
   type elt = A.elt
   (** Type of scalar values. *)
-
 
   (** {6 Regression models} *)
 
@@ -44,6 +41,4 @@ module type Sig = sig
 
   val poly : arr -> arr -> int -> arr
   (** TODO *)
-
-
 end

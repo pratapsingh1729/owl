@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Owl_types
@@ -107,7 +107,7 @@ module Make (A : Ndarray_Mutable) : sig
   val unsafe_assign_arr : arr -> A.arr -> unit
   (** TODO *)
 
-  (** {6 Maths funcitons} *)
+  (** {6 Maths functions} *)
 
   val noop : arr -> arr
   (** TODO *)
@@ -277,13 +277,13 @@ module Make (A : Ndarray_Mutable) : sig
   val atanh : arr -> arr
   (** TODO *)
 
-  val min : ?axis:int -> arr -> arr
+  val min : ?axis:int -> ?keep_dims:bool -> arr -> arr
   (** TODO *)
 
-  val max : ?axis:int -> arr -> arr
+  val max : ?axis:int -> ?keep_dims:bool -> arr -> arr
   (** TODO *)
 
-  val sum : ?axis:int -> arr -> arr
+  val sum : ?axis:int -> ?keep_dims:bool -> arr -> arr
   (** TODO *)
 
   val sum_reduce : ?axis:int array -> arr -> arr

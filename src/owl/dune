@@ -14,6 +14,8 @@
 
 (copy_files# maths/cephes/*)
 
+(copy_files# maths/cephes_single/*)
+
 (copy_files# stats/*)
 
 (copy_files# stats/sfmt/*)
@@ -117,14 +119,19 @@
    owl_ipmpar
    ;; maths
    airy
+   airyf
    bdtr
    beta
    btdtr
    cbrt
    chbevl
+   chbevlf
    chdtr
    const
+   constf
    dawsn
+   dawsnf
+   polevlf
    ellie
    ellik
    ellpe
@@ -136,21 +143,32 @@
    fdtr
    fresnl
    gamma
+   gammaf
    gdtr
    gels
    hyp2f1
    hyperg
+   hypergf
    i0
+   i0f
    i1
+   i1f
+   ivf
    igam
    igami
    incbet
    incbi
    j0
+   j0f
    j1
+   j1f
    jv
+   jvf
+   jnf
    k0
+   k0f
    k1
+   k1f
    kn
    kolmogorov
    lanczos
@@ -174,10 +192,13 @@
    spence
    stdtr
    struve
+   struvef
+   sqrtf
    tandg
    tukey
    unity
    yn
+   ynf
    zeta
    zetac)
   (flags
@@ -189,7 +210,7 @@
  (flags
   :standard
   (:include ocaml_flags.sexp))
- (libraries ctypes ctypes.stubs eigen owl-base stdlib-shims npy))
+ (libraries ctypes ctypes.stubs eigen owl-base npy))
 
 (rule
  (targets c_flags.sexp c_library_flags.sexp ocaml_flags.sexp

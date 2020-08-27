@@ -1,4 +1,4 @@
-# Owl - OCaml Scientific and Engineering Computing
+# Owl - OCaml Scientific and Engineering Computing [![Build Status](https://travis-ci.org/owlbarn/owl.svg?branch=master)](https://travis-ci.org/owlbarn/owl)
 
 Owl is a dedicated system for scientific and engineering computing in the
 functional programming language OCaml.
@@ -6,9 +6,9 @@ functional programming language OCaml.
 This software is currently maintained by [Komposio](http://komposio.com), a
 Helsinki-based software consulting company.
 
-Visit the project website at [ocaml.xyz](http://ocaml.xyz)
-
-
+Visit the project website at [ocaml.xyz](http://ocaml.xyz).
+The Owl programming API is hosted here [ocaml.xyz](https://ocaml.xyz/package/index.html).
+There is also a book about Owl here [ocaml.xyz](https://ocaml.xyz/book).
 
 ## Optional features
 
@@ -51,3 +51,19 @@ https://github.com/owlbarn/owl/issues/394#issuecomment-471364916
 A common source of frustration when installing `owl` is the possible appearence of linking errors (see for example https://github.com/owlbarn/owl/issues/450).
 This usually happens when installing `owl` on ubuntu (where it depends on how openblas is complied and packaged), but could happen in other distributions (see for example https://discuss.ocaml.org/t/owl-undefined-symbols-after-standard-installation/4186/13).
 The only way we could solve those issues is to recompile `openblas` and install it manually. You can see how we do it by looking at the Docker files in the repository: https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu
+
+## Statistics
+
+```text
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+OCaml                          357          31341          17275         130905
+C                              140           5783           9874          69686
+C/C++ Header                    91           4897           2784          36291
+make                             2              6              5             34
+Markdown                         1              6              0             16
+-------------------------------------------------------------------------------
+SUM:                           591          42033          29938         236932
+-------------------------------------------------------------------------------
+```

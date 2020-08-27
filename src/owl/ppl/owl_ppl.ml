@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Experimental: Probabilistic Programming *)
@@ -8,16 +8,13 @@
 open Owl_types
 
 module Make (A : Stats_Dist) = struct
-
   include Owl_distribution.Make (A)
-
   module Lazy = Owl_lazy.Make (A)
-
 
   (* graph manipulation *)
 
   (* Draw random variables from different distributions. *)
-(*
+  (*
   let uniform ~a ~b =
     let draw_samples args =
       let a = Lazy.value_to_arr args.(0) in
@@ -55,6 +52,4 @@ module Make (A : Stats_Dist) = struct
 *)
 
   (* Mathematical operators *)
-
-
 end

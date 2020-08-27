@@ -1,14 +1,11 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
-
 
 open Owl_types_common
 
-
 module type Sig = sig
-
   (* types and constants *)
 
   type arr
@@ -16,7 +13,6 @@ module type Sig = sig
   type elt
 
   val number : number
-
 
   (* creation and operation functions *)
 
@@ -54,7 +50,7 @@ module type Sig = sig
 
   val copy : arr -> arr
 
-  val copy_ : out:arr -> arr -> unit  (* FIXME: move to mutable? *)
+  val copy_ : out:arr -> arr -> unit (* FIXME: move to mutable? *)
 
   val reset : arr -> unit
 
@@ -67,6 +63,8 @@ module type Sig = sig
   val repeat : arr -> int array -> arr
 
   val concatenate : ?axis:int -> arr array -> arr
+
+  val stack : ?axis:int -> arr array -> arr
 
   val split : ?axis:int -> int array -> arr -> arr array
 
@@ -86,8 +84,13 @@ module type Sig = sig
 
   val pad : ?v:elt -> int list list -> arr -> arr
 
-  val print : ?max_row:int -> ?max_col:int -> ?header:bool -> ?fmt:(elt -> string) -> arr -> unit
-
+  val print
+    :  ?max_row:int
+    -> ?max_col:int
+    -> ?header:bool
+    -> ?fmt:(elt -> string)
+    -> arr
+    -> unit
 
   (* mathematical functions *)
 
@@ -137,11 +140,11 @@ module type Sig = sig
 
   val atanh : arr -> arr
 
-  val min : ?axis:int -> arr -> arr
+  val min : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val max : ?axis:int -> arr -> arr
+  val max : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val sum : ?axis:int -> arr -> arr
+  val sum : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
   val sum_reduce : ?axis:int array -> arr -> arr
 
@@ -151,11 +154,17 @@ module type Sig = sig
 
   val relu : arr -> arr
 
+  val dawsn : arr -> arr
+
   val min' : arr -> elt
 
   val max' : arr -> elt
 
   val sum' : arr -> elt
+
+  val log_sum_exp' : arr -> elt
+
+  val log_sum_exp : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
   val l1norm' : arr -> elt
 
@@ -204,7 +213,6 @@ module type Sig = sig
   val scalar_div : elt -> arr -> arr
 
   val fma : arr -> arr -> arr -> arr
-
 
   (* Neural network related functions *)
 
@@ -290,7 +298,6 @@ module type Sig = sig
 
   val upsampling2d_backward : arr -> int array -> arr -> arr
 
-
   (* matrix functions *)
 
   val row_num : arr -> int
@@ -325,12 +332,9 @@ module type Sig = sig
 
   val of_arrays : elt array array -> arr
 
-
   (* helper functions *)
 
   val float_to_elt : float -> elt
 
   val elt_to_float : elt -> float
-
-
 end

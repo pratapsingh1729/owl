@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (**
@@ -8,7 +8,6 @@ Statistics: random number generators, PDF and CDF functions, and hypothesis
 tests. The module also includes some basic statistical functions such as mean,
 variance, skew, and etc.
  *)
-
 
 (** {6 Randomisation functions} *)
 
@@ -20,7 +19,6 @@ val choose : 'a array -> int -> 'a array
 
 val sample : 'a array -> int -> 'a array
 (** ``sample x n`` draw ``n`` samples from ``x`` with replacement.  *)
-
 
 (** {6 Basic statistical functions} *)
 
@@ -169,8 +167,11 @@ Type for computed histograms, with optional weighted counts and normalized
 counts.
 *)
 
-val histogram : [ `Bins of float array | `N of int ] -> ?weights:float array ->
-  float array -> histogram
+val histogram
+  :  [ `Bins of float array | `N of int ]
+  -> ?weights:float array
+  -> float array
+  -> histogram
 (**
 ``histogram bins x`` creates a histogram from values in ``x``. If bins matches
 `` `N n`` it will construct ``n`` equally spaced bins from the minimum to
@@ -187,7 +188,11 @@ Returns a histogram including the ``n+1`` bin boundaries, ``n`` counts and
 weighted counts if applicable, but without normalisation.
 *)
 
-val histogram_sorted : [ `Bins of float array | `N of int ] -> ?weights:float array -> float array -> histogram
+val histogram_sorted
+  :  [ `Bins of float array | `N of int ]
+  -> ?weights:float array
+  -> float array
+  -> histogram
 (**
 ``histogram_sorted bins x`` is like ``histogram`` but assumes that ``x`` is sorted
 already. This increases efficiency if there are less bins than data. Undefined
@@ -208,7 +213,8 @@ one. If bins are infinitely wide, their density is 0 and the sum over width
 times density of all finite bins is the total weight in the finite bins. The
 result is stored in the ``density`` field. *)
 
-val pp_hist: Format.formatter -> histogram -> unit [@@ocaml.toplevel_printer]
+val pp_hist : Format.formatter -> histogram -> unit
+  [@@ocaml.toplevel_printer]
 (** Pretty-print summary information on a histogram record *)
 
 val ecdf : float array -> float array * float array
@@ -216,6 +222,7 @@ val ecdf : float array -> float array * float array
 ``ecdf x`` returns ``(x',f)`` which are the empirical cumulative distribution
 function ``f`` of ``x`` at points ``x'``. ``x'`` is just ``x`` sorted in increasing
 order with duplicates removed.
+The function does not support ``nan`` values in the array ``x``.
  *)
 
 val z_score : mu:float -> sigma:float -> float array -> float array
@@ -238,7 +245,11 @@ as follows:
   (Q1 - k*(Q3-Q1), Q3 + k*(Q3-Q1))
 *)
 
-val gaussian_kde : ?bandwidth:[ `Silverman | `Scott ] -> ?n_points:int -> float array -> (float array * float array)
+val gaussian_kde
+  :  ?bandwidth:[ `Silverman | `Scott ]
+  -> ?n_points:int
+  -> float array
+  -> float array * float array
 (**
 ``gaussian_kde x`` is a Gaussian kernel density estimator. The estimation of
 the pdf runs in `O(sample_size * n_points)`, and returns an array tuple
@@ -253,35 +264,56 @@ Bandwidth selection rules is as follows:
 The default bandwidth value is ``Scott``.
  *)
 
-
 (** {6 MCMC: Markov Chain Monte Carlo} *)
 
-val metropolis_hastings : (float array -> float) -> float array -> int -> float array array
+val metropolis_hastings
+  :  (float array -> float)
+  -> float array
+  -> int
+  -> float array array
 (**
 TODO: ``metropolis_hastings f p n`` is Metropolis-Hastings MCMC algorithm.
 f is pdf of the p
  *)
 
-val gibbs_sampling : (float array -> int -> float) -> float array -> int -> float array array
+val gibbs_sampling
+  :  (float array -> int -> float)
+  -> float array
+  -> int
+  -> float array array
 (**
 TODO: ``gibbs_sampling f p n`` is Gibbs sampler. f is a sampler based on the full
 conditional function of all variables
  *)
 
-
 (** {6 Hypothesis tests} *)
 
-type hypothesis = {
-  reject  : bool;    (* reject null hypothesis if ``true`` *)
-  p_value : float;   (* p-value of the hypothesis test *)
-  score   : float;   (* score has different meaning in different tests *)
-}
+type hypothesis =
+  { reject : bool
+  ; (* reject null hypothesis if ``true`` *)
+    p_value : float
+  ; (* p-value of the hypothesis test *)
+    score : float (* score has different meaning in different tests *)
+  }
 (** Record type contains the result of a hypothesis test. *)
 
-type tail = BothSide | RightSide | LeftSide
-(** Types of alternative hypothesis tests: one-side, left-side, or right-side. *)
+type tail =
+  | BothSide
+  | RightSide
+  | LeftSide
+      (** Types of alternative hypothesis tests: one-side, left-side, or right-side. *)
 
-val z_test : mu:float -> sigma:float -> ?alpha:float -> ?side:tail -> float array -> hypothesis
+val pp_hypothesis : Format.formatter -> hypothesis -> unit
+  [@@ocaml.toplevel_printer]
+(** Pretty printer of hypothesis type *)
+
+val z_test
+  :  mu:float
+  -> sigma:float
+  -> ?alpha:float
+  -> ?side:tail
+  -> float array
+  -> hypothesis
 (**
 ``z_test ~mu ~sigma ~alpha ~side x`` returns a test decision for the null
 hypothesis that the data ``x`` comes from a normal distribution with mean ``mu``
@@ -293,7 +325,7 @@ the ``alpha`` significance level, and ``false`` otherwise. ``p`` is the p-value 
 ``z`` is the z-score.
  *)
 
- val t_test : mu:float -> ?alpha:float -> ?side:tail -> float array -> hypothesis
+val t_test : mu:float -> ?alpha:float -> ?side:tail -> float array -> hypothesis
 (**
 ``t_test ~mu ~alpha ~side x`` returns a test decision of one-sample t-test
 which is a parametric test of the location parameter when the population
@@ -307,7 +339,13 @@ val t_test_paired : ?alpha:float -> ?side:tail -> float array -> float array -> 
 hypothesis that the data in ``x – y`` comes from a normal distribution with
 mean equal to zero and unknown variance, using the paired-sample t-test. *)
 
-val t_test_unpaired : ?alpha:float -> ?side:tail -> ?equal_var:bool -> float array -> float array -> hypothesis
+val t_test_unpaired
+  :  ?alpha:float
+  -> ?side:tail
+  -> ?equal_var:bool
+  -> float array
+  -> float array
+  -> hypothesis
 (**
 ``t_test_unpaired ~alpha ~side ~equal_var x y`` returns a test decision for
 the null hypothesis that the data in vectors ``x`` and ``y`` comes from
@@ -333,7 +371,6 @@ hypothesis at the ``alpha`` significance level, and ``false``
 otherwise. ``p`` is the p-value and ``d`` is the Kolmogorov-Smirnov
 test statistic.
 *)
-
 
 val ks2_test : ?alpha:float -> float array -> float array -> hypothesis
 (**
@@ -379,7 +416,7 @@ val runs_test : ?alpha:float -> ?side:tail -> ?v:float -> float array -> hypothe
 (**
 ``runs_test ~alpha ~v x`` returns a test decision for the null hypothesis that
 the data ``x`` comes in random order, against the alternative that they do not,
-by runnign Wald–Wolfowitz runs test. The test is based on the number of runs
+by running Wald–Wolfowitz runs test. The test is based on the number of runs
 of consecutive values above or below the mean of ``x``. ``~v`` is the reference
 value, the default value is the median of ``x``.
  *)
@@ -395,7 +432,6 @@ Statistica Sinica 7 805-813), else usning asymptotic normal distribution.
 
 val wilcoxon : ?alpha:float -> ?side:tail -> float array -> float array -> hypothesis
 (** TODO *)
-
 
 (** {6 Discrete random variables} *)
 
@@ -487,12 +523,12 @@ log-transformed result from ``hypergeometric_pdf``.
 val multinomial_rvs : int -> p:float array -> int array
 (**
 ``multinomial_rvs n ~p`` generates random numbers of multinomial distribution
-from ``n`` trials. The probabilty mass function is as follows.
+from ``n`` trials. The probability mass function is as follows.
 
 .. math::
   P(x) = \frac{n!}{{x_1}! \cdot\cdot\cdot {x_k}!} p_{1}^{x_1} \cdot\cdot\cdot p_{k}^{x_k}
 
-``p`` is the probabilty mass of ``k`` categories. The elements in ``p`` should
+``p`` is the probability mass of ``k`` categories. The elements in ``p`` should
 all be positive (result is undefined if there are negative values), but they 
 don't need to sum to 1: the result is the same whether or not ``p`` is normalized. 
 For implementation details, refer to :cite:`davis1993computer`.
@@ -500,14 +536,14 @@ For implementation details, refer to :cite:`davis1993computer`.
 
 val multinomial_pdf : int array -> p:float array -> float
 (**
-``multinomial_rvs x ~p`` return the probabilty of ``x`` given the probabilty
+``multinomial_rvs x ~p`` return the probability of ``x`` given the probability
 mass of a multinomial distribution.
  *)
 
 val multinomial_logpdf : int array -> p:float array -> float
 (**
-``multinomial_rvs x ~p`` returns the logarithm probabilty of ``x`` given the
-probabilty mass of a multinomial distribution.
+``multinomial_rvs x ~p`` returns the logarithm probability of ``x`` given the
+probability mass of a multinomial distribution.
  *)
 
 val categorical_rvs : float array -> int
@@ -516,7 +552,6 @@ val categorical_rvs : float array -> int
 categorical distribution. This is equavalent to only one trial from
 ``multinomial_rvs`` function, so it is just a simple wrapping.
  *)
-
 
 (** {6 Continuous random variables} *)
 
@@ -1031,7 +1066,7 @@ val rayleigh_isf : float -> sigma:float -> float
 val dirichlet_rvs : alpha:float array -> float array
 (**
 ``dirichlet_rvs ~alpha`` returns random variables of ``K-1`` order Dirichlet
-distribution, follows the following probabilty dense function.
+distribution, follows the following probability dense function.
 
 .. math::
   f(x_1,...,x_K; \alpha_1,...,\alpha_K) = \frac{1}{\mathbf{B(\alpha)}} \prod_{i=1}^K x_i^{\alpha_i - 1}
@@ -1052,7 +1087,5 @@ val dirichlet_pdf : float array -> alpha:float array -> float
 
 val dirichlet_logpdf : float array -> alpha:float array -> float
 (** TODO *)
-
-
 
 (* ends here *)

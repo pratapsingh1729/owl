@@ -1,15 +1,12 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Owl_types_common
 
-
 module type Sig = sig
-
   include Owl_types_ndarray_algodiff.Sig
-
 
   val create_ : out:arr -> elt -> unit
 
@@ -17,7 +14,7 @@ module type Sig = sig
 
   val gaussian_ : ?mu:elt -> ?sigma:elt -> out:arr -> unit
 
-  val sequential_ :?a:elt -> ?step:elt -> out:arr -> unit
+  val sequential_ : ?a:elt -> ?step:elt -> out:arr -> unit
 
   val bernoulli_ : ?p:elt -> out:arr -> unit
 
@@ -107,7 +104,15 @@ module type Sig = sig
 
   val clip_by_l2norm_ : ?out:arr -> elt -> arr -> unit
 
-  val dot_ : ?transa:bool -> ?transb:bool -> ?alpha:elt -> ?beta:elt -> c:arr -> arr -> arr -> unit
+  val dot_
+    :  ?transa:bool
+    -> ?transb:bool
+    -> ?alpha:elt
+    -> ?beta:elt
+    -> c:arr
+    -> arr
+    -> arr
+    -> unit
 
   val abs_ : ?out:arr -> arr -> unit
 
@@ -195,23 +200,23 @@ module type Sig = sig
 
   val max_ : out:arr -> axis:int -> arr -> unit
 
-  val sum : ?axis:int -> arr -> arr
+  val sum : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val prod : ?axis:int -> arr -> arr
+  val prod : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val min : ?axis:int -> arr -> arr
+  val min : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val max : ?axis:int -> arr -> arr
+  val max : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val mean : ?axis:int -> arr -> arr
+  val mean : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val var : ?axis:int -> arr -> arr
+  val var : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val std : ?axis:int -> arr -> arr
+  val std : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val l1norm : ?axis:int -> arr -> arr
+  val l1norm : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val l2norm : ?axis:int -> arr -> arr
+  val l2norm : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
   val cumsum_ : ?out:arr -> ?axis:int -> arr -> unit
 
@@ -261,11 +266,32 @@ module type Sig = sig
 
   val conv3d_ : out:arr -> ?padding:padding -> arr -> arr -> int array -> unit
 
-  val dilated_conv1d_ : out:arr -> ?padding:padding -> arr -> arr -> int array -> int array -> unit
+  val dilated_conv1d_
+    :  out:arr
+    -> ?padding:padding
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> unit
 
-  val dilated_conv2d_ : out:arr -> ?padding:padding -> arr -> arr -> int array -> int array -> unit
+  val dilated_conv2d_
+    :  out:arr
+    -> ?padding:padding
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> unit
 
-  val dilated_conv3d_ : out:arr -> ?padding:padding -> arr -> arr -> int array -> int array -> unit
+  val dilated_conv3d_
+    :  out:arr
+    -> ?padding:padding
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> unit
 
   val transpose_conv1d_ : out:arr -> ?padding:padding -> arr -> arr -> int array -> unit
 
@@ -299,45 +325,145 @@ module type Sig = sig
 
   val conv3d_backward_kernel_ : out:arr -> arr -> arr -> int array -> arr -> unit
 
-  val dilated_conv1d_backward_input_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv1d_backward_input_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val dilated_conv1d_backward_kernel_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv1d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val dilated_conv2d_backward_input_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv2d_backward_input_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val dilated_conv2d_backward_kernel_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv2d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val dilated_conv3d_backward_input_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv3d_backward_input_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val dilated_conv3d_backward_kernel_ : out:arr -> arr -> arr -> int array -> int array -> arr -> unit
+  val dilated_conv3d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
   val transpose_conv1d_backward_input_ : out:arr -> arr -> arr -> int array -> arr -> unit
 
-  val transpose_conv1d_backward_kernel_ : out:arr -> arr -> arr -> int array -> arr -> unit
+  val transpose_conv1d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> arr
+    -> unit
 
   val transpose_conv2d_backward_input_ : out:arr -> arr -> arr -> int array -> arr -> unit
 
-  val transpose_conv2d_backward_kernel_ : out:arr -> arr -> arr -> int array -> arr -> unit
+  val transpose_conv2d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> arr
+    -> unit
 
   val transpose_conv3d_backward_input_ : out:arr -> arr -> arr -> int array -> arr -> unit
 
-  val transpose_conv3d_backward_kernel_ : out:arr -> arr -> arr -> int array -> arr -> unit
+  val transpose_conv3d_backward_kernel_
+    :  out:arr
+    -> arr
+    -> arr
+    -> int array
+    -> arr
+    -> unit
 
-  val max_pool1d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val max_pool1d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val max_pool2d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val max_pool2d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val max_pool3d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val max_pool3d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val avg_pool1d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val avg_pool1d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val avg_pool2d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val avg_pool2d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
-  val avg_pool3d_backward_ : out:arr -> padding -> arr -> int array -> int array -> arr -> unit
+  val avg_pool3d_backward_
+    :  out:arr
+    -> padding
+    -> arr
+    -> int array
+    -> int array
+    -> arr
+    -> unit
 
   val upsampling2d_backward_ : out:arr -> arr -> int array -> arr -> unit
 
   val fused_adagrad_ : ?out:arr -> rate:float -> eps:float -> arr -> unit
-
-
 end

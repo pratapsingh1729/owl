@@ -1,8 +1,7 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
-
 
 external shuffle : 'a array -> unit = "owl_stats_stub_shuffle"
 
@@ -24,7 +23,13 @@ external skew : float array -> float -> float -> float = "owl_stats_stub_skew"
 
 external kurtosis : float array -> float -> float -> float = "owl_stats_stub_kurtosis"
 
-external cov : float array -> float array -> float -> float -> float = "owl_stats_stub_cov"
+external cov
+  :  float array
+  -> float array
+  -> float
+  -> float
+  -> float
+  = "owl_stats_stub_cov"
 
 external corrcoef : float array -> float array -> float = "owl_stats_stub_corrcoef"
 

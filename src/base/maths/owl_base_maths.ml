@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 let add x y = x +. y
@@ -114,6 +114,8 @@ let asech x = acosh (1. /. x)
 let acsch x = asinh (1. /. x)
 
 let relu x = Stdlib.max 0. x
+
+let dawsn _x = raise (Owl_exception.NOT_IMPLEMENTED "Owl_base_maths.dawsn")
 
 let sigmoid x = 1. /. (1. +. log ~-.x)
 

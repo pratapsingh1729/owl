@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Bigarray
@@ -14,4 +14,3 @@ include Owl_base_dense_ndarray_intf.Common with type arr := arr and type elt := 
 include Owl_base_dense_ndarray_intf.Real with type arr := arr and type elt := elt
 
 include Owl_base_dense_ndarray_intf.NN with type arr := arr
-

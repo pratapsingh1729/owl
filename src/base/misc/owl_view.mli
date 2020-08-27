@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** View module
@@ -14,17 +14,11 @@
 
 open Owl_types
 
-
-module Make
-  (A : Ndarray_Basic)
-  : sig
-
-
+module Make (A : Ndarray_Basic) : sig
   (** {6 Type definition} *)
 
   type t
   (** ``t`` is the abstract type to represent a view atop of an ndarray. *)
-
 
   (** {6 Conversion functions} *)
 
@@ -33,7 +27,6 @@ module Make
 
   val to_arr : t -> A.arr
   (** ``to_arr x`` creates an new ndarray based on the view ``x``. *)
-
 
   (** {6 Manipulation functions} *)
 
@@ -61,13 +54,12 @@ module Make
   val numel : t -> int
   (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
-
   (** {6 Iteration functions} *)
 
   val iteri : (int -> A.elt -> unit) -> t -> unit
   (**
 ``iteri f x`` iterates and applies ``f`` to every element in ``x``. ``f`` has type
-``f : int array -> elt -> unit``, the first paramater is index. 1d indices are
+``f : int array -> elt -> unit``, the first parameter is index. 1d indices are
 passed to the user function.
    *)
 
@@ -111,7 +103,6 @@ Similar to `mapi` but n-d indices are passed in. This function is much slower
 than `mapi`.
    *)
 
-
   (** {6 Examination & Comparison}  *)
 
   val exists : (A.elt -> bool) -> t -> bool
@@ -137,6 +128,4 @@ element satisfies ``f`` then the function returns ``true`` otherwise ``false``.
 
   val not_equal : t -> t -> bool
   (** ``not_equal x y`` returns ``true`` if ``x`` and ``y`` are not elementwise equal. *)
-
-
 end

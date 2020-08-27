@@ -1,8 +1,0 @@
-base/algodiff/*
-base/core/*
-base/linalg/*
-base/maths/*
-base/stats/*
-plplot/*
-top/*
-zoo/*

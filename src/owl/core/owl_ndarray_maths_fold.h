@@ -1,6 +1,6 @@
 /*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  */
 
 #ifdef OWL_ENABLE_TEMPLATE
@@ -184,7 +184,7 @@ CAMLprim value FUN11(value vN, value vX, value vY)
 #endif /* FUN11 */
 
 
-// function to fold all the elements in x with extra paramaters A and B
+// function to fold all the elements in x with extra parameters A and B
 #ifdef FUN23
 
 CAMLprim value FUN23(value vN, value vX, value vA, vB)

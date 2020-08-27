@@ -1,12 +1,9 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
-
 module type Sig = sig
-
-
   module A : Owl_types_ndarray_mutable.Sig
 
   (** {6 Type definition} *)
@@ -16,7 +13,6 @@ module type Sig = sig
 
   type value
   (** TODO *)
-
 
   (** {6 Core functions} *)
 
@@ -43,6 +39,4 @@ module type Sig = sig
 
   val is_elt : value -> bool
   (** TODO *)
-
-
 end

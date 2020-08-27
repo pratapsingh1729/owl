@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (**
@@ -16,12 +16,14 @@ the magnitude of ``y``; in case both ``x`` and ``y`` have the same magnitudes, `
 is less than ``y`` if the phase of ``x`` is less than the phase of ``y``; 3) less or
 equal, greater, greater or equal relation can be further defined atop of the
 aforementioned conventions.
+
+The generic module supports operations for the following Bigarry element types:
+Int8_signed, Int8_unsigned, Int16_signed, Int16_unsigned, Int32, Int64,
+Float32, Float64, Complex32, Complex64.
  *)
 
 open Bigarray
-
 open Owl_types
-
 
 (** {6 Type definition} *)
 
@@ -35,7 +37,6 @@ type ('a, 'b) kind = ('a, 'b) Bigarray.kind
 Type of the ndarray, e.g., Bigarray.Float32, Bigarray.Complex64, and etc.
  *)
 
-
 (** {6 Create Ndarrays}  *)
 
 val empty : ('a, 'b) kind -> int array -> ('a, 'b) t
@@ -48,7 +49,6 @@ is faster than ``zeros`` to create a ndarray.
 The module only supports the following four types of ndarray: ``Bigarray.Float32``,
 ``Bigarray.Float64``, ``Bigarray.Complex32``, and ``Bigarray.Complex64``.
  *)
-
 
 val create : ('a, 'b) kind -> int array -> 'a -> ('a, 'b) t
 (**
@@ -105,6 +105,11 @@ val gaussian : ('a, 'b) kind -> ?mu:'a -> ?sigma:'a -> int array -> ('a, 'b) t
 ``gaussian Float64 [|3;4;5|]`` ...
  *)
 
+val poisson : ('a, 'b) kind -> mu:float -> int array -> ('a, 'b) t
+(**
+``poisson Float64 [|3;4;5|]`` ...
+ *)
+
 val sequential : ('a, 'b) kind -> ?a:'a -> ?step:'a -> int array -> ('a, 'b) t
 (**
 ``sequential Bigarray.Float64 [|3;4;5|] 2.`` creates a three-diemensional
@@ -152,7 +157,6 @@ val unit_basis : ('a, 'b) kind -> int -> int -> ('a, 'b) t
 (**
 ``unit_basis k n i`` returns a unit basis vector with ``i``th element set to 1.
  *)
-
 
 (** {6 Obtain basic properties}  *)
 
@@ -235,7 +239,6 @@ val i1d : ('a, 'b) t -> int array -> int
 ``i1d x i`` converts ``x``'s n-dimensional index ``i`` to one-dimensional one.
 *)
 
-
 (** {6 Manipulate Ndarrays}  *)
 
 val get : ('a, 'b) t -> int array -> 'a
@@ -301,6 +304,18 @@ the values in ``y``. ``y`` must have the same shape as the one defined by ``axis
 About the slice definition of ``axis``, please refer to ``get_fancy`` function.
  *)
 
+val get_fancy_ext : index array -> ('a, 'b) t -> ('a, 'b) t
+(**
+This function is used for extended  indexing operator since  ocaml 4.10.0.
+The indexing and slicing syntax become much ligher.
+ *)
+
+val set_fancy_ext : index array -> ('a, 'b) t -> ('a, 'b) t -> unit
+(**
+This function is used for extended  indexing operator since  ocaml 4.10.0.
+The indexing and slicing syntax become much ligher.
+ *)
+
 val get_slice : int list list -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``get_slice axis x`` aims to provide a simpler version of ``get_fancy``.
@@ -317,6 +332,21 @@ This function assumes that every list element in the passed in ``int list list``
 represents a range, i.e., ``R`` constructor.
 
 E.g., ``[[];[0;3];[0]]`` is equivalent to ``[R []; R [0;3]; R [0]]``.
+ *)
+
+val get_slice_ext : int list array -> ('a, 'b) t -> ('a, 'b) t
+(**
+``get_slice_ext axis x`` is used for extended indexing operator since 
+ocaml 4.10.0. The indexing and slicing syntax become much ligher.
+
+E.g., ``x.%{0;1;2}``.
+ *)
+
+val set_slice_ext : int list array -> ('a, 'b) t -> ('a, 'b) t -> unit
+(**
+Similar to ``get_slice_ext axis x``, this function is used for extended 
+indexing operator since  ocaml 4.10.0. The indexing and slicing syntax 
+become much ligher.
  *)
 
 val sub_left : ('a, 'b) t -> int -> int -> ('a, 'b) t
@@ -360,11 +390,11 @@ val resize : ?head:bool -> ('a, 'b) t -> int array -> ('a, 'b) t
 (**
 ``resize ~head x d`` resizes the ndarray ``x``. If there are less number of
 elelments in the new shape than the old one, the new ndarray shares part of
-the memeory with the old ``x``. ``head`` indicates the alignment between the
+the memory with the old ``x``. ``head`` indicates the alignment between the
 new and old data, either from head or from tail. Note the data is flattened
 before the operation.
 
-If there are more elements in the new shape ``d``. Then new memeory space will
+If there are more elements in the new shape ``d``. Then new memory space will
 be allocated and the content of ``x`` will be copied to the new memory. The
 rest of the allocated space will be filled with zeros. The default value of
 ``head`` is ``true``.
@@ -487,6 +517,15 @@ dimension specified by ``axis``. The default value of ``axis`` is 0, i.e., the
 lowest dimension of a matrix/ndarray.
  *)
 
+val stack : ?axis:int -> ('a, 'b) t array -> ('a, 'b) t
+(**
+``stack ~axis x`` stacks an array of ndarrays along the ``axis`` dimension. 
+For example, if ``x`` contains K ndarrays of shape [|2;3|], then
+``stack ~axis:1 x`` will return an ndarray of dimensions [|2;K;3|].
+The ndarrays in ``x``, they must all have the same shape. 
+The default value of ``axis`` is 0.
+ *)
+
 val split : ?axis:int -> int array -> ('a, 'b) t -> ('a, 'b) t array
 (**
 ``split ~axis parts x`` splits an ndarray ``x`` into parts along the specified
@@ -555,7 +594,6 @@ val sort1 : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
 as result, the original ``x`` remains intact. 
  *)
 
-
 val sort : ('a, 'b) t -> ('a, 'b) t
 (**
 ``sort x`` performs quicksort of the elelments in ``x``. A new copy is returned
@@ -577,15 +615,20 @@ with replacement. ``axis`` is set to zero by default. The return is a tuple
 of both samples and the indices of the selected samples.
  *)
 
-val mmap : Unix.file_descr -> ?pos:int64 -> ('a, 'b) kind -> bool -> int array -> ('a, 'b) t
+val mmap
+  :  Unix.file_descr
+  -> ?pos:int64
+  -> ('a, 'b) kind
+  -> bool
+  -> int array
+  -> ('a, 'b) t
 (**
 ``mmap fd kind layout shared dims`` ...
  *)
 
-
 (** {6 Iteration functions}  *)
 
-val iteri :(int -> 'a -> unit) -> ('a, 'b) t -> unit
+val iteri : (int -> 'a -> unit) -> ('a, 'b) t -> unit
 (**
 ``iteri f x`` applies function ``f`` to each element in ``x``. Note that 1d index
 is passed to function ``f``, you need to convert it to nd-index by yourself.
@@ -593,7 +636,7 @@ is passed to function ``f``, you need to convert it to nd-index by yourself.
 
 val iter : ('a -> unit) -> ('a, 'b) t -> unit
 (**
-``iter f x`` is similar to ``iteri f x``, excpet the index is not passed to ``f``.
+``iter f x`` is similar to ``iteri f x``, except the index is not passed to ``f``.
  *)
 
 val mapi : (int -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
@@ -610,7 +653,7 @@ val foldi : ?axis:int -> (int -> 'a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b)
 (**
 ``foldi ~axis f a x`` folds (or reduces) the elements in ``x`` from left along
 the specified ``axis`` using passed in function ``f``. ``a`` is the initial element
-and in ``f i acc b`` ``acc`` is the accumulater and ``b`` is one of the elemets in
+and in ``f i acc b`` ``acc`` is the accumulater and ``b`` is one of the elements in
 ``x`` along the same axis. Note that ``i`` is 1d index of ``b``.
  *)
 
@@ -638,7 +681,7 @@ val filteri : (int -> 'a -> bool) -> ('a, 'b) t -> int array
 ``filteri f x`` uses ``f`` to filter out certain elements in ``x``. An element
 will be included if ``f`` returns ``true``. The returned result is an array of
 1-dimensional indices of the selected elements. To obtain the n-dimensional
-indices, you need to convert it manulally with Owl's helper function.
+indices, you need to convert it manually with Owl's helper function.
  *)
 
 val filter : ('a -> bool) -> ('a, 'b) t -> int array
@@ -658,7 +701,7 @@ val iter2 : ('a -> 'b -> unit) -> ('a, 'c) t -> ('b, 'd) t -> unit
 val map2i : (int -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``map2i f x y`` applies ``f`` to two elements of the same position in both ``x``
-and ``y``. Note that 1d index is passed to funciton ``f``.
+and ``y``. Note that 1d index is passed to function ``f``.
  *)
 
 val map2 : ('a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
@@ -666,13 +709,18 @@ val map2 : ('a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 ``map2 f x y`` is similar to ``map2i f x y`` except the index is not passed.
  *)
 
-val iteri_nd :(int array -> 'a -> unit) -> ('a, 'b) t -> unit
+val iteri_nd : (int array -> 'a -> unit) -> ('a, 'b) t -> unit
 (** Similar to ``iteri`` but n-d indices are passed to the user function. *)
 
 val mapi_nd : (int array -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
 (** Similar to ``mapi`` but n-d indices are passed to the user function. *)
 
-val foldi_nd : ?axis:int -> (int array -> 'a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b) t
+val foldi_nd
+  :  ?axis:int
+  -> (int array -> 'a -> 'a -> 'a)
+  -> 'a
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** Similar to ``foldi`` but n-d indices are passed to the user function. *)
 
 val scani_nd : ?axis:int -> (int array -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
@@ -681,7 +729,7 @@ val scani_nd : ?axis:int -> (int array -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 
 val filteri_nd : (int array -> 'a -> bool) -> ('a, 'b) t -> int array array
 (** Similar to ``filteri`` but n-d indices are returned. *)
 
-val iter2i_nd :(int array -> 'a -> 'c -> unit) -> ('a, 'b) t -> ('c, 'd) t -> unit
+val iter2i_nd : (int array -> 'a -> 'c -> unit) -> ('a, 'b) t -> ('c, 'd) t -> unit
 (** Similar to ``iter2i`` but n-d indices are passed to the user function. *)
 
 val map2i_nd : (int array -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
@@ -716,7 +764,11 @@ Please refer to ``iteri_slice`` for more details.
 val map_slice : ?axis:int -> (('a, 'b) t -> 'c) -> ('a, 'b) t -> 'c array
 (** Similar to ``mapi_slice`` but slice index is not passed in. *)
 
-val filteri_slice : ?axis:int -> (int -> ('a, 'b) t -> bool) -> ('a, 'b) t -> ('a, 'b) t array
+val filteri_slice
+  :  ?axis:int
+  -> (int -> ('a, 'b) t -> bool)
+  -> ('a, 'b) t
+  -> ('a, 'b) t array
 (**
 ``filteri_slice ~axis f x`` filters the slices along the specified ``axis`` in
 ``x``. The slices which satisfy the predicate ``f`` are returned in an array.
@@ -737,7 +789,6 @@ Please refer to ``iteri_slice`` for more details.
 
 val fold_slice : ?axis:int -> ('c -> ('a, 'b) t -> 'c) -> 'c -> ('a, 'b) t -> 'c
 (** Similar to ``foldi_slice`` but slice index is not passed in. *)
-
 
 (** {6 Examination & Comparison}  *)
 
@@ -1021,7 +1072,6 @@ ndarray/matrix wherein ``1`` indicates that the element ``b`` from ``x`` is
 considered as approximately equal to ``a``, namely ``abs (a - b) < eps``.
  *)
 
-
 (** {6 Input/Output functions}  *)
 
 val of_array : ('a, 'b) kind -> 'a array -> int array -> ('a, 'b) t
@@ -1033,10 +1083,16 @@ val of_array : ('a, 'b) kind -> 'a array -> int array -> ('a, 'b) t
 val to_array : ('a, 'b) t -> 'a array
 (**
 ``to_array x`` converts an ndarray ``x`` to OCaml's array type. Note that the
-ndarray ``x`` is flattened before convertion.
+ndarray ``x`` is flattened before conversion.
  *)
 
-val print : ?max_row:int -> ?max_col:int -> ?header:bool -> ?fmt:('a -> string) -> ('a, 'b) t -> unit
+val print
+  :  ?max_row:int
+  -> ?max_col:int
+  -> ?header:bool
+  -> ?fmt:('a -> string)
+  -> ('a, 'b) t
+  -> unit
 (**
 ``print x`` prints all the elements in ``x`` as well as their indices. ``max_row``
 and ``max_col`` specify the maximum number of rows and columns to display.
@@ -1044,7 +1100,8 @@ and ``max_col`` specify the maximum number of rows and columns to display.
 function to format every element into string.
  *)
 
-val pp_dsnda : Format.formatter -> ('a, 'b) t -> unit [@@ocaml.toplevel_printer]
+val pp_dsnda : Format.formatter -> ('a, 'b) t -> unit
+  [@@ocaml.toplevel_printer]
 (**
 ``pp_dsnda x`` prints ``x`` in OCaml toplevel. If the ndarray is too long,
 ``pp_dsnda`` only prints out parts of the ndarray.
@@ -1058,7 +1115,7 @@ val save : out:string -> ('a, 'b) t -> unit
 val load : ('a, 'b) kind -> string -> ('a, 'b) t
 (**
 ``load k s`` loads previously serialised ndarray from file ``s`` into memory.
-It is necesssary to specify the type of the ndarray with paramater ``k``.
+It is necessary to specify the type of the ndarray with parameter ``k``.
 *)
 
 val save_npy : out:string -> ('a, 'b) t -> unit
@@ -1098,7 +1155,7 @@ val im_z2d : (Complex.t, complex64_elt) t -> (float, float64_elt) t
 same shape.
  *)
 
-val sum : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val sum : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``sum ~axis x`` sums the elements in ``x`` along specified ``axis``.
  *)
@@ -1114,7 +1171,7 @@ val sum_reduce : ?axis:int array -> ('a, 'b) t -> ('a, 'b) t
 in the ``axis`` array.
  *)
 
-val prod : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val prod : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``prod ~axis x`` multiples the elements in ``x`` along specified ``axis``.
  *)
@@ -1124,7 +1181,7 @@ val prod' : ('a, 'b) t -> 'a
 ``prod x`` returns the product of all elements in ``x`` along passed in axises.
  *)
 
-val mean : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val mean : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``mean ~axis x`` calculates the mean along specified ``axis``.
  *)
@@ -1134,7 +1191,7 @@ val mean' : ('a, 'b) t -> 'a
 ``mean' x`` calculates the mean of all the elements in ``x``.
  *)
 
-val median : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val median : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``median ~axis x`` calculates the median along specified ``axis`` of ``x``.
 *)
@@ -1144,7 +1201,7 @@ val median' : ('a, 'b) t -> 'a
 ``median x`` calculates the median of a flattened version of ``x``.
 *)
 
-val var : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val var : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``var ~axis x`` calculates the variance along specified ``axis``.
  *)
@@ -1154,7 +1211,7 @@ val var' : ('a, 'b) t -> 'a
 ``var' x`` calculates the variance of all the elements in ``x``.
  *)
 
-val std : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val std : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``std ~axis`` calculates the standard deviation along specified ``axis``.
  *)
@@ -1164,7 +1221,17 @@ val std' : ('a, 'b) t -> 'a
 ``std' x`` calculates the standard deviation of all the elements in ``x``.
  *)
 
-val min : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val sem : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
+(**
+``sem ~axis`` calculates the standard error of mean along specified ``axis``.
+ *)
+
+val sem' : ('a, 'b) t -> 'a
+(**
+``sem' x`` calculates the standard error of mean of all the elements in ``x``.
+ *)
+
+val min : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``min x`` returns the minimum of all elements in ``x`` along specified ``axis``.
 If no axis is specified, ``x`` will be flattened and the minimum of all the
@@ -1179,7 +1246,7 @@ val min' : ('a, 'b) t -> 'a
 ``x`` in scalar value.
  *)
 
-val max : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val max : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``max x`` returns the maximum of all elements in ``x`` along specified ``axis``.
 If no axis is specified, ``x`` will be flattened and the maximum of all the
@@ -1194,7 +1261,7 @@ val max' : ('a, 'b) t -> 'a
 ``x`` in scalar value.
  *)
 
-val minmax : ?axis:int -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
+val minmax : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
 (**
 ``minmax' x`` returns ``(min_v, max_v)``, ``min_v`` is the minimum value in
 ``x`` while ``max_v`` is the maximum.
@@ -1216,7 +1283,7 @@ val max_i : ('a, 'b) t -> 'a * int array
 ``max_i x`` returns the maximum of all elements in ``x`` as well as its index.
  *)
 
-val minmax_i : ('a, 'b) t -> ('a * (int array)) * ('a * (int array))
+val minmax_i : ('a, 'b) t -> ('a * int array) * ('a * int array)
 (**
 ``minmax_i x`` returns ``((min_v,min_i), (max_v,max_i))`` where
 ``(min_v,min_i)`` is the minimum value in ``x`` along with its index while
@@ -1274,7 +1341,7 @@ val reci_tol : ?tol:'a -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``reci_tol ~tol x`` computes the reciprocal of every element in ``x``. Different
 from ``reci``, ``reci_tol`` sets the elements whose ``abs`` value smaller than ``tol``
-to zeros. If ``tol`` is not specified, the defautl ``Owl_utils.eps Float32`` will
+to zeros. If ``tol`` is not specified, the default ``Owl_utils.eps Float32`` will
 be used. For complex numbers, refer to Owl's doc to see how to compare.
  *)
 
@@ -1531,7 +1598,13 @@ val log_sum_exp' : (float, 'a) t -> float
 the elements in ``x``.
  *)
 
-val l1norm : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val log_sum_exp : ?axis:int -> ?keep_dims:bool -> (float, 'a) t -> (float, 'a) t
+(**
+``log_sum_exp ~axis x`` computes the logarithm of the sum of exponentials of all
+the elements in ``x`` along axis ``axis``.
+ *)
+
+val l1norm : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l1norm x`` calculates the l1-norm of of ``x`` along specified axis.
  *)
@@ -1541,7 +1614,7 @@ val l1norm' : ('a, 'b) t -> 'a
 ``l1norm x`` calculates the l1-norm of all the element in ``x``.
  *)
 
-val l2norm : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val l2norm : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l2norm x`` calculates the l2-norm of of ``x`` along specified axis.
  *)
@@ -1551,7 +1624,7 @@ val l2norm' : ('a, 'b) t -> 'a
 ``l2norm x`` calculates the l2-norm of all the element in ``x``.
  *)
 
-val l2norm_sqr : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val l2norm_sqr : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l2norm_sqr x`` calculates the square l2-norm of of ``x`` along specified axis.
  *)
@@ -1563,7 +1636,7 @@ of all elements in ``x``. The function uses conjugate transpose in the product,
 hence it always returns a float number.
  *)
 
-val vecnorm : ?axis:int -> ?p:float -> ('a, 'b) t -> ('a, 'b) t
+val vecnorm : ?axis:int -> ?p:float -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``vecnorm ~axis ~p x`` calculates the generalised vector p-norm along the
 specified ``axis``. The generalised p-norm is defined as below.
@@ -1642,7 +1715,78 @@ val lgamma : ('a, 'b) t -> ('a, 'b) t
 ``lgamma x`` computes the loggamma of the elements in ``x`` and returns the result
 in a new ndarray.
  *)
- 
+
+val dawsn : ('a, 'b) t -> ('a, 'b) t
+(**
+``dawsn x`` computes the Dawson function of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val i0 : ('a, 'b) t -> ('a, 'b) t
+(**
+``i0 x`` computes the modified Bessel function of order 0 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val i0e : ('a, 'b) t -> ('a, 'b) t
+(**
+``i0e x`` computes the exponentially scaled modified Bessel function of order 0 of the elements in ``x`` 
+and returns the result in a new ndarray.
+ *)
+
+val i1 : ('a, 'b) t -> ('a, 'b) t
+(**
+``i1 x`` computes the modified Bessel function of order 1 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val i1e : ('a, 'b) t -> ('a, 'b) t
+(**
+``i1e x`` computes the exponentially scaled modified Bessel function of order 1 of the elements in ``x`` 
+and returns the result in a new ndarray.
+ *)
+
+val iv : v:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+(**
+``iv v x`` computes modified Bessel function of ``x`` of real order ``v``
+ *)
+
+val scalar_iv : v:'a -> ('a, 'b) t -> ('a, 'b) t
+(**
+``scalar_iv v x`` computes the modified Bessel function of ``x`` of real order ``v``.
+ *)
+
+val iv_scalar : v:('a, 'b) t -> 'a -> ('a, 'b) t
+(**
+``iv_scalar v x`` computes modified Bessel function of ``x`` of real order ``v``
+ *)
+
+val j0 : ('a, 'b) t -> ('a, 'b) t
+(**
+``j0 x`` computes the Bessel function of order 0 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val j1 : ('a, 'b) t -> ('a, 'b) t
+(**
+``j1 x`` computes the Bessel function of order 1 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val jv : v:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+(**
+``jv v x`` computes Bessel function the first kind of ``x`` of real order ``v``
+ *)
+
+val scalar_jv : v:'a -> ('a, 'b) t -> ('a, 'b) t
+(**
+``scalar_jv v x`` computes the Bessel function of the first kind of ``x`` of real order ``v``.
+ *)
+
+val jv_scalar : v:('a, 'b) t -> 'a -> ('a, 'b) t
+(**
+``jv_scalar v x`` computes Bessel function of the first kind of ``x`` of real order ``v``
+ *)
 
 (** {6 Binary math operators}  *)
 
@@ -1822,7 +1966,6 @@ val clip_by_l2norm : 'a -> ('a, 'b) t -> ('a, 'b) t
 val fma : ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 (** ``fma x y z`` calculates the `fused multiply add`, i.e. ``(x * y) + z``. *)
 
-
 (** {6 Tensor Calculus}  *)
 
 val contract1 : (int * int) array -> ('a, 'b) t -> ('a, 'b) t
@@ -1831,7 +1974,7 @@ val contract1 : (int * int) array -> ('a, 'b) t -> ('a, 'b) t
 contraction) on ``x``. ``index_pairs`` is an array of contracted indices.
 
 Caveat: Not well tested yet, use with care! Also, consider to use TTGT in
-future for better perfomance.
+future for better performance.
  *)
 
 val contract2 : (int * int) array -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
@@ -1842,9 +1985,8 @@ contracted indices, the first element is the index of ``x``, the second is that
 of ``y``.
 
 Caveat: Not well tested yet, use with care! Also, consider to use TTGT in
-future for better perfomance.
+future for better performance.
  *)
-
 
 (** {6 Cast functions}  *)
 
@@ -1895,7 +2037,6 @@ val cast_d2c : (float, float64_elt) t -> (Complex.t, complex32_elt) t
 ``cast_d2c x`` casts ``x`` from ``float64`` to ``complex32``.
  *)
 
-
 (** {6 Neural network related}  *)
 
 val conv1d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t
@@ -1907,22 +2048,55 @@ val conv2d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, '
 val conv3d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv1d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t
+val dilated_conv1d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv2d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t
+val dilated_conv2d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv3d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t
+val dilated_conv3d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv1d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t
+val transpose_conv1d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv2d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t
+val transpose_conv2d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv3d : ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t
+val transpose_conv3d
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
 (** TODO *)
 
 val max_pool1d : ?padding:padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t
@@ -1943,87 +2117,223 @@ val avg_pool2d : ?padding:padding -> ('a, 'b) t -> int array -> int array -> ('a
 val avg_pool3d : ?padding:padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t
 (** TODO *)
 
-val max_pool2d_argmax : ?padding:padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t * (int64, int64_elt) t
+val max_pool2d_argmax
+  :  ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t * (int64, int64_elt) t
 (** TODO *)
 
 val upsampling2d : ('a, 'b) t -> int array -> ('a, 'b) t
 (** TODO *)
 
-val conv1d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv1d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val conv1d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv1d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val conv2d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv2d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val conv2d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv2d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val conv3d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv3d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val conv3d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val conv3d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv1d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv1d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv1d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv1d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv2d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv2d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv2d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv2d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv3d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv3d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val dilated_conv3d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val dilated_conv3d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv1d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv1d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv1d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv1d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv2d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv2d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv2d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv2d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv3d_backward_input : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv3d_backward_input
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val transpose_conv3d_backward_kernel : ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
+val transpose_conv3d_backward_kernel
+  :  ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val max_pool1d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val max_pool1d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val max_pool2d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val max_pool2d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val max_pool3d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val max_pool3d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val avg_pool1d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val avg_pool1d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val avg_pool2d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val avg_pool2d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
-val avg_pool3d_backward : padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> ('a, 'b) t
+val avg_pool3d_backward
+  :  padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** TODO *)
 
 val upsampling2d_backward : ('a, 'b) t -> int array -> ('a, 'b) t -> ('a, 'b) t
 (** TODO *)
-
 
 (** {6 Helper functions }  *)
 
@@ -2077,7 +2387,6 @@ Parameters:
   * ``window`` is the size of the sliding window.
  *)
 
-
 (** {6 In-place modification}  *)
 
 val create_ : out:('a, 'b) t -> 'a -> unit
@@ -2089,7 +2398,10 @@ val uniform_ : ?a:'a -> ?b:'a -> out:('a, 'b) t -> unit
 val gaussian_ : ?mu:'a -> ?sigma:'a -> out:('a, 'b) t -> unit
 (** TODO *)
 
-val sequential_ :?a:'a -> ?step:'a -> out:('a, 'b) t -> unit
+val poisson_ : mu:float -> out:('a, 'b) t -> unit
+(** TODO *)
+
+val sequential_ : ?a:'a -> ?step:'a -> out:('a, 'b) t -> unit
 (** TODO *)
 
 val bernoulli_ : ?p:float -> out:('a, 'b) t -> unit
@@ -2163,145 +2475,145 @@ val max_ : out:('a, 'b) t -> axis:int -> ('a, 'b) t -> unit
 
 val add_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``add_ x y`` is simiar to ``add`` function but the output is written to
+``add_ x y`` is similar to ``add`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val sub_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``sub_ x y`` is simiar to ``sub`` function but the output is written to
+``sub_ x y`` is similar to ``sub`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val mul_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``mul_ x y`` is simiar to ``mul`` function but the output is written to
+``mul_ x y`` is similar to ``mul`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val div_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``div_ x y`` is simiar to ``div`` function but the output is written to
+``div_ x y`` is similar to ``div`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val pow_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``pow_ x y`` is simiar to ``pow`` function but the output is written to
+``pow_ x y`` is similar to ``pow`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val atan2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``atan2_ x y`` is simiar to ``atan2`` function but the output is written to
+``atan2_ x y`` is similar to ``atan2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val hypot_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``hypot_ x y`` is simiar to ``hypot`` function but the output is written to
+``hypot_ x y`` is similar to ``hypot`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val fmod_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``fmod_ x y`` is simiar to ``fmod`` function but the output is written to
+``fmod_ x y`` is similar to ``fmod`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val min2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``min2_ x y`` is simiar to ``min2`` function but the output is written to
+``min2_ x y`` is similar to ``min2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val max2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``max2_ x y`` is simiar to ``max2`` function but the output is written to
+``max2_ x y`` is similar to ``max2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val add_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``add_scalar_ x y`` is simiar to ``add_scalar`` function but the output is
+``add_scalar_ x y`` is similar to ``add_scalar`` function but the output is
 written to ``x``.
  *)
 
 val sub_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``sub_scalar_ x y`` is simiar to ``sub_scalar`` function but the output is
+``sub_scalar_ x y`` is similar to ``sub_scalar`` function but the output is
 written to ``x``.
  *)
 
 val mul_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``mul_scalar_ x y`` is simiar to ``mul_scalar`` function but the output is
+``mul_scalar_ x y`` is similar to ``mul_scalar`` function but the output is
 written to ``x``.
  *)
 
 val div_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``div_scalar_ x y`` is simiar to ``div_scalar`` function but the output is
+``div_scalar_ x y`` is similar to ``div_scalar`` function but the output is
 written to ``x``.
  *)
 
 val pow_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``pow_scalar_ x y`` is simiar to ``pow_scalar`` function but the output is
+``pow_scalar_ x y`` is similar to ``pow_scalar`` function but the output is
 written to ``x``.
  *)
 
 val atan2_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``atan2_scalar_ x y`` is simiar to ``atan2_scalar`` function but the output is
+``atan2_scalar_ x y`` is similar to ``atan2_scalar`` function but the output is
 written to ``x``.
  *)
 
 val fmod_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``fmod_scalar_ x y`` is simiar to ``fmod_scalar`` function but the output is
+``fmod_scalar_ x y`` is similar to ``fmod_scalar`` function but the output is
 written to ``x``.
  *)
 
 val scalar_add_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_add_ a x`` is simiar to ``scalar_add`` function but the output is
+``scalar_add_ a x`` is similar to ``scalar_add`` function but the output is
 written to ``x``.
  *)
 
 val scalar_sub_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_sub_ a x`` is simiar to ``scalar_sub`` function but the output is
+``scalar_sub_ a x`` is similar to ``scalar_sub`` function but the output is
 written to ``x``.
  *)
 
 val scalar_mul_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_mul_ a x`` is simiar to ``scalar_mul`` function but the output is
+``scalar_mul_ a x`` is similar to ``scalar_mul`` function but the output is
 written to ``x``.
  *)
 
 val scalar_div_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_div_ a x`` is simiar to ``scalar_div`` function but the output is
+``scalar_div_ a x`` is similar to ``scalar_div`` function but the output is
 written to ``x``.
  *)
 
 val scalar_pow_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_pow_ a x`` is simiar to ``scalar_pow`` function but the output is
+``scalar_pow_ a x`` is similar to ``scalar_pow`` function but the output is
 written to ``x``.
  *)
 
 val scalar_atan2_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_atan2_ a x`` is simiar to ``scalar_atan2`` function but the output is
+``scalar_atan2_ a x`` is similar to ``scalar_atan2`` function but the output is
 written to ``x``.
  *)
 
 val scalar_fmod_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_fmod_ a x`` is simiar to ``scalar_fmod`` function but the output is
+``scalar_fmod_ a x`` is similar to ``scalar_fmod`` function but the output is
 written to ``x``.
  *)
 
@@ -2313,11 +2625,19 @@ val clip_by_l2norm_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 
 val fma_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``fma_ ~out x y z`` is simiar to ``fma x y z`` function but the output is
+``fma_ ~out x y z`` is similar to ``fma x y z`` function but the output is
 written to ``out``.
  *)
 
-val dot_ : ?transa:bool -> ?transb:bool -> ?alpha:'a -> ?beta:'a -> c:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
+val dot_
+  :  ?transa:bool
+  -> ?transb:bool
+  -> ?alpha:'a
+  -> ?beta:'a
+  -> c:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> unit
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
 val conj_ : ?out:('a, 'b) t -> ('a, 'b) t -> unit
@@ -2547,212 +2867,470 @@ val dropout_ : ?out:('a, 'b) t -> ?rate:float -> ('a, 'b) t -> unit
 
 val elt_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_equal_ x y`` is simiar to ``elt_equal`` function but the output is
+``elt_equal_ x y`` is similar to ``elt_equal`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_not_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_not_equal_ x y`` is simiar to ``elt_not_equal`` function but the output is
+``elt_not_equal_ x y`` is similar to ``elt_not_equal`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_less_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_less_ x y`` is simiar to ``elt_less`` function but the output is written
+``elt_less_ x y`` is similar to ``elt_less`` function but the output is written
 to ``out``. You need to make sure ``out`` is big enough to hold the output
 result.
  *)
 
 val elt_greater_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_greater_ x y`` is simiar to ``elt_greater`` function but the output is
+``elt_greater_ x y`` is similar to ``elt_greater`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_less_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_less_equal_ x y`` is simiar to ``elt_less_equal`` function but the output
+``elt_less_equal_ x y`` is similar to ``elt_less_equal`` function but the output
 is written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_greater_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_greater_equal_ x y`` is simiar to ``elt_greater_equal`` function but the
+``elt_greater_equal_ x y`` is similar to ``elt_greater_equal`` function but the
 output is written to ``out``. You need to make sure ``out`` is big enough to
 hold the output result.
  *)
 
 val elt_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_equal_scalar_ x a`` is simiar to ``elt_equal_scalar`` function but the
+``elt_equal_scalar_ x a`` is similar to ``elt_equal_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_not_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_not_equal_scalar_ x a`` is simiar to ``elt_not_equal_scalar`` function but
+``elt_not_equal_scalar_ x a`` is similar to ``elt_not_equal_scalar`` function but
 the output is written to ``x``.
  *)
 
 val elt_less_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_less_scalar_ x a`` is simiar to ``elt_less_scalar`` function but the
+``elt_less_scalar_ x a`` is similar to ``elt_less_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_greater_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_greater_scalar_ x a`` is simiar to ``elt_greater_scalar`` function but the
+``elt_greater_scalar_ x a`` is similar to ``elt_greater_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_less_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_less_equal_scalar_ x a`` is simiar to ``elt_less_equal_scalar`` function
+``elt_less_equal_scalar_ x a`` is similar to ``elt_less_equal_scalar`` function
 but the output is written to ``x``.
  *)
 
 val elt_greater_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_greater_equal_scalar_ x a`` is simiar to ``elt_greater_equal_scalar``
+``elt_greater_equal_scalar_ x a`` is similar to ``elt_greater_equal_scalar``
 function but the output is written to ``x``.
  *)
 
-val conv1d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val conv1d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val conv2d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val conv2d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val conv3d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val conv3d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val dilated_conv1d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> unit
+val dilated_conv1d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val dilated_conv2d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> unit
+val dilated_conv2d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val dilated_conv3d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> unit
+val dilated_conv3d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val transpose_conv1d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val transpose_conv1d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val transpose_conv2d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val transpose_conv2d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val transpose_conv3d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> ('a, 'b) t -> int array -> unit
+val transpose_conv3d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> unit
 (** TODO *)
 
-val max_pool1d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val max_pool1d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val max_pool2d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val max_pool2d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val max_pool3d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val max_pool3d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val avg_pool1d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val avg_pool1d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val avg_pool2d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val avg_pool2d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
-val avg_pool3d_ : out:('a, 'b) t -> ?padding:padding -> ('a, 'b) t -> int array -> int array -> unit
+val avg_pool3d_
+  :  out:('a, 'b) t
+  -> ?padding:padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> unit
 (** TODO *)
 
 val upsampling2d_ : out:('a, 'b) t -> ('a, 'b) t -> int array -> unit
 (** TODO *)
 
-val conv1d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv1d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val conv1d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv1d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val conv2d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv2d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val conv2d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv2d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val conv3d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv3d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val conv3d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val conv3d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv1d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv1d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv1d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv1d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv2d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv2d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv2d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv2d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv3d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv3d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val dilated_conv3d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val dilated_conv3d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv1d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv1d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv1d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv1d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv2d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv2d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv2d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv2d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv3d_backward_input_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv3d_backward_input_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val transpose_conv3d_backward_kernel_ : out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val transpose_conv3d_backward_kernel_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val max_pool1d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val max_pool1d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val max_pool2d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val max_pool2d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val max_pool3d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val max_pool3d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val avg_pool1d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val avg_pool1d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val avg_pool2d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val avg_pool2d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val avg_pool3d_backward_ : out:('a, 'b) t -> padding -> ('a, 'b) t -> int array -> int array -> ('a, 'b) t -> unit
+val avg_pool3d_backward_
+  :  out:('a, 'b) t
+  -> padding
+  -> ('a, 'b) t
+  -> int array
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
-val upsampling2d_backward_ : out:('a, 'b) t -> ('a, 'b) t -> int array -> ('a, 'b) t -> unit
+val upsampling2d_backward_
+  :  out:('a, 'b) t
+  -> ('a, 'b) t
+  -> int array
+  -> ('a, 'b) t
+  -> unit
 (** TODO *)
 
 val fused_adagrad_ : ?out:('a, 'b) t -> rate:'a -> eps:'a -> ('a, 'b) t -> unit
 (** TODO *)
 
-
 (** {6 Matrix functions}  *)
 
-type area = { a : int; b : int; c : int; d : int }
+type area =
+  { a : int
+  ; b : int
+  ; c : int
+  ; d : int
+  }
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
 val area : int -> int -> int -> int -> area
@@ -2818,14 +3396,21 @@ val draw_rows : ?replacement:bool -> ('a, 'b) t -> int -> ('a, 'b) t * int array
 val draw_cols : ?replacement:bool -> ('a, 'b) t -> int -> ('a, 'b) t * int array
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
-val draw_rows2 : ?replacement:bool -> ('a, 'b) t -> ('a, 'b) t -> int -> ('a, 'b) t * ('a, 'b) t * int array
+val draw_rows2
+  :  ?replacement:bool
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int
+  -> ('a, 'b) t * ('a, 'b) t * int array
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
-val draw_cols2 : ?replacement:bool -> ('a, 'b) t -> ('a, 'b) t -> int -> ('a, 'b) t * ('a, 'b) t * int array
+val draw_cols2
+  :  ?replacement:bool
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int
+  -> ('a, 'b) t * ('a, 'b) t * int array
 (** Refer to :doc:`owl_dense_matrix_generic` *)
-
-
-
 
 (** {6 Helper functions}  *)
 
@@ -2834,6 +3419,5 @@ val float_to_elt : 'a -> 'a
 
 val elt_to_float : 'a -> 'a
 (** Identity function to deal with the type conversion required by other functors. *)
-
 
 (* ends here *)

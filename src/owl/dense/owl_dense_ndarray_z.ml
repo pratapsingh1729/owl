@@ -1,19 +1,19 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Bigarray
-
 module M = Owl_dense_ndarray_generic
 include M
 
 type elt = Complex.t
+
 type arr = (Complex.t, complex64_elt, c_layout) Genarray.t
+
 type cast_arr = (float, float64_elt, c_layout) Genarray.t
 
 let number = Owl_types.C64
-
 
 (* overload functions in Owl_dense_ndarray_generic *)
 

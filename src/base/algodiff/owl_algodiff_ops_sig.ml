@@ -1,3 +1,8 @@
+(*
+ * OWL - OCaml Scientific and Engineering Computing
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
+ *)
+
 open Owl_types
 
 module type Sig = sig
@@ -49,6 +54,9 @@ module type Sig = sig
 
     val div : t -> t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val kron : t -> t -> t
+    (** Refer to :doc:`owl_dense_matrix_generic` *)
 
     val dot : t -> t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
@@ -146,7 +154,13 @@ module type Sig = sig
     val sum' : t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
-    val sum : ?axis:int -> t -> t
+    val log_sum_exp' : t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val log_sum_exp : ?axis:int -> ?keep_dims:bool -> t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val sum : ?axis:int -> ?keep_dims:bool -> t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val sum_reduce : ?axis:int array -> t -> t
@@ -155,7 +169,10 @@ module type Sig = sig
     val mean : t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
-    val transpose : t -> t
+    val transpose : ?axis:int array -> t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val swap : int -> int -> t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val l1norm' : t -> t
@@ -171,6 +188,9 @@ module type Sig = sig
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val relu : t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val dawsn : t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val softplus : t -> t
@@ -207,6 +227,9 @@ module type Sig = sig
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val concatenate : axis:int -> t array -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val stack : axis:int -> t array -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
     val get_slice : int list list -> t -> t

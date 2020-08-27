@@ -68,6 +68,8 @@ module Make (M : Ndarray_Algodiff with type elt = float) = struct
 
     let relu () = test_func Maths.relu
 
+    let dawsn () = test_func Maths.dawsn
+
     let transpose () = test_func Maths.transpose
 
     let diag () = test_func Maths.diag
@@ -78,6 +80,10 @@ module Make (M : Ndarray_Algodiff with type elt = float) = struct
 
 
     let trace () = test_func Maths.trace
+
+    let log_sum_exp' () = test_func Maths.log_sum_exp'
+
+    let log_sum_exp () = test_func Maths.(log_sum_exp ~axis:1)
 
     let l1norm' () = test_func Maths.l1norm'
 
@@ -171,6 +177,17 @@ module Make (M : Ndarray_Algodiff with type elt = float) = struct
         fun x ->
           let y = Maths.concatenate ~axis:0 [| y1; x; y2; h' x |] in
           Maths.(y *@ x)
+      in
+      test_func f
+
+
+    let stack () =
+      let f =
+        let y1 = Mat.gaussian n n in
+        let y2 = Mat.gaussian n n in
+        let h x = Maths.(y1 *@ x) in
+        let h' = grad h in
+        fun x -> Maths.stack ~axis:(-1) [| y1; x; y2; h' x |]
       in
       test_func f
 
@@ -303,14 +320,16 @@ module Make (M : Ndarray_Algodiff with type elt = float) = struct
       [ "neg", neg; "abs", abs; "signum", signum; "floor", floor; "ceil", ceil
       ; "round", round; "sqr", sqr; "sqrt", sqrt; "log", log; "pow", pow; "sin", sin
       ; "cos", cos; "tan", tan; "sinh", sinh; "cosh", cosh; "tanh", tanh
-      ; "sigmoid", sigmoid; "relu", relu; "exp", exp; "transpose", transpose; "diag", diag
-      ; "diagm", diagm; "trace", trace; "l1norm'", l1norm'; "l2norm'", l2norm'
-      ; "l2norm_sqr'", l2norm_sqr'; "tril", tril; "triu", triu; "inv", inv
-      ; "logdet", logdet; "chol", chol; "qr", qr; "lq", lq; "split", split
-      ; "concat", concat; "concatenate", concatenate; "svd", svd; "of_arrays", of_arrays
-      ; "to_arrays", to_arrays; "init_2d", init_2d; "sylvester", sylvester
-      ; "lyapunov", lyapunov; "discrete_lyapunov", discrete_lyapunov; "linsolve", linsolve
-      ; "linsolve_triangular", linsolve_triangular; "care", care ]
+      ; "sigmoid", sigmoid; "relu", relu; "dawsn", dawsn; "exp", exp
+      ; "transpose", transpose; "diag", diag; "diagm", diagm; "trace", trace
+      ; "l1norm'", l1norm'; "l2norm'", l2norm'; "l2norm_sqr'", l2norm_sqr'; "tril", tril
+      ; "triu", triu; "inv", inv; "logdet", logdet; "chol", chol; "qr", qr; "lq", lq
+      ; "split", split; "concat", concat; "concatenate", concatenate; "stack", stack
+      ; "svd", svd; "of_arrays", of_arrays; "to_arrays", to_arrays; "init_2d", init_2d
+      ; "sylvester", sylvester; "lyapunov", lyapunov
+      ; "discrete_lyapunov", discrete_lyapunov; "linsolve", linsolve
+      ; "linsolve_triangular", linsolve_triangular; "care", care
+      ; "log_sum_exp'", log_sum_exp'; "log_sum_exp", log_sum_exp ]
       |> List.fold_left
            (fun (b, error_msg) (s, f) ->
              let b', c =

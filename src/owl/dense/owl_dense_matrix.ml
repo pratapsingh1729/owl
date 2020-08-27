@@ -1,10 +1,9 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Matrix: module aliases *)
-
 
 module Operator = struct
   include Owl_operator.Make_Basic (Owl_dense_matrix_generic)
@@ -12,7 +11,6 @@ module Operator = struct
   include Owl_operator.Make_Matrix (Owl_dense_matrix_generic)
   include Owl_operator.Make_Linalg (Owl_linalg_generic)
 end
-
 
 module Generic = struct
   include Owl_dense_matrix_generic
@@ -23,9 +21,7 @@ module Generic = struct
   let inv = Owl_linalg_generic.inv
 
   let mpow = Owl_linalg_generic.mpow
-
 end
-
 
 module S = struct
   include Owl_dense_matrix_s
@@ -37,9 +33,8 @@ module S = struct
 
   let mpow = Owl_linalg_s.mpow
 
-  let diag ?(k=0) x = Owl_dense_ndarray_generic.diag ~k x
+  let diag ?(k = 0) x = Owl_dense_ndarray_generic.diag ~k x
 end
-
 
 module D = struct
   include Owl_dense_matrix_d
@@ -51,9 +46,8 @@ module D = struct
 
   let mpow = Owl_linalg_d.mpow
 
-  let diag ?(k=0) x = Owl_dense_ndarray_generic.diag ~k x
+  let diag ?(k = 0) x = Owl_dense_ndarray_generic.diag ~k x
 end
-
 
 module C = struct
   include Owl_dense_matrix_c
@@ -65,7 +59,6 @@ module C = struct
 
   let mpow = Owl_linalg_c.mpow
 end
-
 
 module Z = struct
   include Owl_dense_matrix_z

@@ -1,18 +1,17 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** [ Real dense matrix ]  *)
 
 open Bigarray
-
 module M = Owl_dense_matrix_generic
 include M
 
 type elt = float
-type mat = (float, float32_elt) M.t
 
+type mat = (float, float32_elt) M.t
 
 (* overload functions in Owl_dense_matrix_generic *)
 
@@ -35,6 +34,8 @@ let sequential ?a ?step m n = M.sequential Float32 ?a ?step m n
 let uniform ?a ?b m n = M.uniform Float32 ?a ?b m n
 
 let gaussian ?mu ?sigma m n = M.gaussian Float32 ?mu ?sigma m n
+
+let poisson ~mu m n = M.poisson Float32 ~mu m n
 
 let semidef m = M.semidef Float32 m
 

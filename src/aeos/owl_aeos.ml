@@ -1,11 +1,9 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
-
 (** AEOS: Automatic Empirical Optimisation of Software *)
-
 
 let tune_default fname =
   Owl_aeos_log.info "Using default parameters...";

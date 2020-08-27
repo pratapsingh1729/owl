@@ -1,8 +1,7 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
-
 
 (** {6 Read and write operations} *)
 
@@ -33,7 +32,6 @@ val read_csv_proc : ?sep:char -> (int -> string array -> unit) -> string -> unit
 val write_csv_proc : ?sep:char -> 'a array array -> ('a -> string) -> string -> unit
 (** TODO *)
 
-
 (** {6 Iteration functions} *)
 
 val iteri_lines_of_file : ?verbose:bool -> (int -> string -> unit) -> string -> unit
@@ -47,7 +45,6 @@ val iteri_lines_of_marshal : ?verbose:bool -> (int -> 'a -> unit) -> string -> u
 
 val mapi_lines_of_marshal : (int -> 'a -> 'b) -> string -> 'b array
 (** TODO *)
-
 
 (** {6 Helper functions} *)
 

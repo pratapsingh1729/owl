@@ -1,22 +1,25 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** NLP: TFIDF module *)
 
-
 (** {6 Type definition} *)
 
-type tf_typ = Binary | Count | Frequency | Log_norm
-(** Type of term frequency. *)
+type tf_typ =
+  | Binary
+  | Count
+  | Frequency
+  | Log_norm (** Type of term frequency. *)
 
-type df_typ = Unary | Idf | Idf_Smooth
-(** Type of inverse document frequency. *)
+type df_typ =
+  | Unary
+  | Idf
+  | Idf_Smooth (** Type of inverse document frequency. *)
 
 type t
 (** Type of a TFIDF model *)
-
 
 (** {6 Query model} *)
 
@@ -53,9 +56,12 @@ val term_count : ('a, float) Hashtbl.t -> 'a array -> unit
 val density : t -> float
 (** Return the percentage of non-zero elements in doc-term matrix. *)
 
-val doc_to_vec : (float, 'a) Bigarray.kind -> t -> (int * float) array -> (float, 'a) Owl_dense.Ndarray.Generic.t
+val doc_to_vec
+  :  (float, 'a) Bigarray.kind
+  -> t
+  -> (int * float) array
+  -> (float, 'a) Owl_dense.Ndarray.Generic.t
 (** ``doc_to_vec kind tfidf vec`` converts a TFIDF vector from its sparse represents to dense ndarray vector whose length equals the vocabulary size. *)
-
 
 (** {6 Iteration functions} *)
 
@@ -75,14 +81,13 @@ val mapi : (int -> (int * float) array -> 'a) -> t -> 'a array
 (** Map all the document vectors in a TFIDF model. The format of document vector is ``(vocabulary index, weight)`` tuple array of a document. *)
 
 val reset_iterators : t -> unit
-(** Reset the iterator to the begining of the TFIDF model. *)
-
+(** Reset the iterator to the beginning of the TFIDF model. *)
 
 (** {6 Core functions} *)
 
 val build : ?norm:bool -> ?sort:bool -> ?tf:tf_typ -> ?df:df_typ -> Owl_nlp_corpus.t -> t
 (**
-This function builds up a TFIDF model according to the passed in paramaters.
+This function builds up a TFIDF model according to the passed in parameters.
 
 Parameters:
 * ``norm``: whether to normalise the vectors in the TFIDF model, default is ``false``.
@@ -91,7 +96,6 @@ Parameters:
 * ``df``: type of document frequency used in building TFIDF. The default is ``Idf``.
 * ``corpus``: the corpus built by ``Owl_nlp_corpus`` model atop of which TFIDF will be built.
  *)
-
 
 (** {6 I/O functions} *)
 
@@ -106,7 +110,6 @@ val to_string : t -> string
 
 val print : t -> unit
 (** Pretty print out the summary information of a TFIDF model. *)
-
 
 (** {6 Helper functions} *)
 
@@ -125,8 +128,17 @@ val normalise : ('a * float) array -> ('a * float) array
 val create : tf_typ -> df_typ -> Owl_nlp_corpus.t -> t
 (** Wrap up a TFIDF model type. Low-level function and you are not supposed to use it. *)
 
-val all_pairwise_distance : Owl_nlp_similarity.t -> t -> ('a * float) array -> (int * float) array
+val all_pairwise_distance
+  :  Owl_nlp_similarity.t
+  -> t
+  -> ('a * float) array
+  -> (int * float) array
 (** Calculate pairwise distance for the whole model, return format is ``(id,dist)`` array. *)
 
-val nearest : ?typ:Owl_nlp_similarity.t -> t -> ('a * float) array -> int -> (int * float) array
+val nearest
+  :  ?typ:Owl_nlp_similarity.t
+  -> t
+  -> ('a * float) array
+  -> int
+  -> (int * float) array
 (** Return K-nearest neighbours, it is very slow due to linear search. *)

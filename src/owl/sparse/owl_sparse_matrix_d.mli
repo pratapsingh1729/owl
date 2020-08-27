@@ -1,11 +1,11 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 type elt = float
-type mat = (float, Bigarray.float64_elt) Owl_sparse_matrix_generic.t
 
+type mat = (float, Bigarray.float64_elt) Owl_sparse_matrix_generic.t
 
 (** {6 Create sparse matrices} *)
 
@@ -24,7 +24,6 @@ val uniform_int : ?a:int -> ?b:int -> int -> int -> mat
 val sequential : int -> int -> mat
 
 val linspace : elt -> elt -> int -> mat
-
 
 (** {6 Obtain the basic properties of a matrix} *)
 
@@ -47,7 +46,6 @@ val nnz_rows : mat -> int array
 val nnz_cols : mat -> int array
 
 val density : mat -> float
-
 
 (** {6 Manipulate a matrix} *)
 
@@ -76,7 +74,6 @@ val rows : mat -> int array -> mat
 val cols : mat -> int array -> mat
 
 val prune : mat -> elt -> float -> unit
-
 
 (** {6 Iterate elements, columns, and rows} *)
 
@@ -152,8 +149,7 @@ val fold_rows_nz : ('a -> mat -> 'a) -> 'a -> mat -> 'a
 
 val fold_cols_nz : ('a -> mat -> 'a) -> 'a -> mat -> 'a
 
-
-(** {6 Examin elements and compare two matrices} *)
+(** {6 Examine elements and compare two matrices} *)
 
 val exists : (elt -> bool) -> mat -> bool
 
@@ -165,7 +161,7 @@ val exists_nz : (elt -> bool) -> mat -> bool
 
 val not_exists_nz : (elt -> bool) -> mat -> bool
 
-val for_all_nz :  (elt -> bool) -> mat -> bool
+val for_all_nz : (elt -> bool) -> mat -> bool
 
 val is_zero : mat -> bool
 
@@ -187,7 +183,6 @@ val greater_equal : mat -> mat -> bool
 
 val less_equal : mat -> mat -> bool
 
-
 (** {6 Randomisation functions} *)
 
 val permutation_matrix : int -> mat
@@ -201,7 +196,6 @@ val shuffle_rows : mat -> mat
 val shuffle_cols : mat -> mat
 
 val shuffle : mat -> mat
-
 
 (** {6 Input/Output and helper functions} *)
 
@@ -218,7 +212,6 @@ val print : mat -> unit
 val save : mat -> string -> unit
 
 val load : string -> mat
-
 
 (** {6 Unary mathematical operations } *)
 
@@ -249,7 +242,6 @@ val neg : mat -> mat
 val l1norm : mat -> elt
 
 val l2norm : mat -> elt
-
 
 (** {6 Binary mathematical operations } *)
 

@@ -1,6 +1,6 @@
 /*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  */
 
 #ifndef OWL_STATS_H
@@ -260,7 +260,7 @@ extern double multinomial_logpdf (const long K, const double p[], const int32_t 
 
 extern long poisson_rvs(double lambda);
 
-/** Poisson distribution **/
+/** Dirichlet distribution **/
 
 extern void dirichlet_rvs (const int K, const double alpha[], double theta[]);
 
@@ -561,7 +561,7 @@ extern long logseries_rvs(double);
 extern double loggam(double x);
 
 
-/** Basic Statistic funcitons **/
+/** Basic Statistic functions **/
 
 extern void owl_stats_shuffle(void* base, int n, int size);
 

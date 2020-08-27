@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 type ('a, 'b) t = ('a, 'b) Owl_base_dense_ndarray_generic.t
@@ -350,7 +350,7 @@ let det a =
 
 
 (* Solver for tridiagonal matrix
- * Input: a[n], b[n], c[n], which together consit the tridiagonal matrix A, and the right side vector r[n]. Return: x[n].
+ * Input: a[n], b[n], c[n], which together consist the tridiagonal matrix A, and the right side vector r[n]. Return: x[n].
  *)
 
 let tridiag_solve_vec a b c r =

@@ -1,20 +1,23 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Log module provides logging functionality. *)
 
-
 (** {6 Type definition} *)
 
-type level = DEBUG | INFO | WARN | ERROR | FATAL
-(**
+type level =
+  | DEBUG
+  | INFO
+  | WARN
+  | ERROR
+  | FATAL
+      (**
 Type definition of log levels, priority is from low to high. Using ``set_level``
 function to set global logging level to high one can mask the output from low
-level loggging.
+level logging.
 *)
-
 
 (** {6 Configuration functions} *)
 
@@ -33,7 +36,6 @@ val set_color : bool -> unit
 (**
 ``set_color true`` turns on the colour; ``set_color false`` turns it off.
 *)
-
 
 (** {6 Log functions} *)
 

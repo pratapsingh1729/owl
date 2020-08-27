@@ -1,19 +1,17 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Numdiff: numerical differentiation module *)
 
 open Owl_types
 
-
 (** The functor used to generate Numdiff module of various precisions. *)
 
 (* TODO: unit test *)
 
 module type Sig = sig
-
   (** {6 Type definition} *)
 
   type arr
@@ -21,7 +19,6 @@ module type Sig = sig
 
   type elt
   (** Scalar type *)
-
 
   (** {6 Basic functions} *)
 
@@ -54,10 +51,9 @@ module type Sig = sig
 
   val jacobianT' : (arr -> arr) -> arr -> arr * arr
   (** transposed jacobian of ``f : vector -> vector``, return ``f x`` and ``j x``. *)
-
 end
-
 
 (* This is a dumb module for checking the module signature. *)
 
-module Impl (A : Ndarray_Numdiff with type elt = float) : Sig = Owl_numdiff_generic.Make (A)
+module Impl (A : Ndarray_Numdiff with type elt = float) : Sig =
+  Owl_numdiff_generic.Make (A)

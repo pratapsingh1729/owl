@@ -1,12 +1,11 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Fast Fourier Transform *)
 
 open Owl_dense_ndarray_generic
-
 
 (** {6 Basic functions} *)
 
@@ -30,7 +29,12 @@ precision with input ``x``. You can skip this parameter by using a submodule
 with specific precision such as ``Owl.Fft.S`` or ``Owl.Fft.D``.
  *)
 
-val irfft : ?axis:int -> ?n:int -> otyp:(float, 'a) kind -> (Complex.t, 'b) t -> (float, 'a) t
+val irfft
+  :  ?axis:int
+  -> ?n:int
+  -> otyp:(float, 'a) kind
+  -> (Complex.t, 'b) t
+  -> (float, 'a) t
 (**
 ``irfft ~axis ~n x`` is the inverse function of ``rfft``. Note the ``n`` parameter
 is used to specified the size of output.

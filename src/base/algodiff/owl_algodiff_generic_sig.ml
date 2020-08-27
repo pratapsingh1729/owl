@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 module type Sig = sig
@@ -70,7 +70,7 @@ module type Sig = sig
   (** laplacian of ``f : (scalar -> scalar)`` at ``x``. *)
 
   val laplacian' : (t -> t) -> t -> t * t
-  (** simiar to ``laplacian``, but return ``(f x, laplacian f x)``. *)
+  (** similar to ``laplacian``, but return ``(f x, laplacian f x)``. *)
 
   val gradhessian : (t -> t) -> t -> t * t
   (** return ``(grad f x, hessian f x)``, ``f : (scalar -> scalar)`` *)

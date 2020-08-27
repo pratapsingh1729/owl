@@ -1,16 +1,12 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
-
 module type Sig = sig
-
   include Owl_types_ndarray_eltcmp.Sig
 
-
   module Scalar : sig
-
     val add : elt -> elt -> elt
 
     val sub : elt -> elt -> elt
@@ -73,16 +69,17 @@ module type Sig = sig
 
     val relu : elt -> elt
 
-    val sigmoid : elt -> elt
+    val dawsn : elt -> elt
 
+    val sigmoid : elt -> elt
   end
 
   module Mat : sig
     val diagm : ?k:int -> arr -> arr
 
-    val triu: ?k:int -> arr -> arr
+    val triu : ?k:int -> arr -> arr
 
-    val tril: ?k:int -> arr -> arr
+    val tril : ?k:int -> arr -> arr
 
     val eye : int -> arr
   end
@@ -90,7 +87,7 @@ module type Sig = sig
   module Linalg : sig
     val inv : arr -> arr
 
-    val logdet: arr -> elt
+    val logdet : arr -> elt
 
     val chol : ?upper:bool -> arr -> arr
 
@@ -100,16 +97,18 @@ module type Sig = sig
 
     val lq : arr -> arr * arr
 
-    val sylvester: arr -> arr -> arr -> arr
+    val sylvester : arr -> arr -> arr -> arr
 
-    val lyapunov: arr -> arr -> arr
+    val lyapunov : arr -> arr -> arr
 
-    val discrete_lyapunov: ?solver:[`default | `bilinear | `direct] -> arr -> arr -> arr
+    val discrete_lyapunov
+      :  ?solver:[ `default | `bilinear | `direct ]
+      -> arr
+      -> arr
+      -> arr
 
-    val linsolve: ?trans:bool -> ?typ:[`n | `u | `l] -> arr -> arr -> arr
+    val linsolve : ?trans:bool -> ?typ:[ `n | `u | `l ] -> arr -> arr -> arr
 
     val care : ?diag_r:bool -> arr -> arr -> arr -> arr -> arr
   end
-
-
 end

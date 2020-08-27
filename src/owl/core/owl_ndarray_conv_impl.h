@@ -1,6 +1,6 @@
 /*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  */
 
 #ifndef OWL_CORE_CONV_IMPL
@@ -95,7 +95,7 @@ void compute_block_sizes(int* kp, int* mp, int* np, int typesize) {
 
 /*
  * Fill in temporary input matrix from input tensor with vectorisation.
- * Currently only support AVX instruciton set.
+ * Currently only support AVX instruction set.
  */
 
 void ACX_FUN_LOAD (load_sub_matrix_fast, spatial) (

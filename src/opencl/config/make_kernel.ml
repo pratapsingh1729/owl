@@ -1,32 +1,32 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
-
 
 let gcc_preprocess in_file =
   let out_file = Filename.temp_file "" "" in
   let cmd = Printf.sprintf "gcc -E -P %s -o %s" in_file out_file in
   let r = Sys.command cmd in
   if r <> 0 then failwith "gcc preprocess";
-
   let ic = open_in out_file in
-  let n = in_channel_length ic in
-  let s = Bytes.create n in
-  really_input ic s 0 n;
-  close_in ic;
-  Bytes.to_string s
+  Fun.protect
+    (fun () ->
+      let n = in_channel_length ic in
+      let s = Bytes.create n in
+      really_input ic s 0 n;
+      Bytes.to_string s)
+    ~finally:(fun () -> close_in ic)
 
 
-let post_process kernel_code =
-  String.trim kernel_code
-
+let post_process kernel_code = String.trim kernel_code
 
 let make_kernel fname kernel_code =
   let h = open_out fname in
-  let ml_code = Printf.sprintf "let code = \"\n%s\"\n" kernel_code in
-  Printf.fprintf h "%s" ml_code;
-  close_out h
+  Fun.protect
+    (fun () ->
+      let ml_code = Printf.sprintf "let code = \"\n%s\"\n" kernel_code in
+      Printf.fprintf h "%s" ml_code)
+    ~finally:(fun () -> close_out h)
 
 
 let _ =

@@ -1,18 +1,17 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Bigarray
-
 module M = Owl_dense_ndarray_generic
 include M
 
 type elt = float
+
 type arr = (float, float32_elt, c_layout) Genarray.t
 
 let number = Owl_types.F32
-
 
 (* overload functions in Owl_dense_ndarray_generic *)
 
@@ -31,6 +30,8 @@ let ones dimension = M.ones Float32 dimension
 let uniform ?a ?b dimension = M.uniform Float32 ?a ?b dimension
 
 let gaussian ?mu ?sigma dimension = M.gaussian ?mu ?sigma Float32 dimension
+
+let poisson ~mu dimension = M.poisson ~mu Float32 dimension
 
 let sequential ?a ?step dimension = M.sequential Float32 ?a ?step dimension
 

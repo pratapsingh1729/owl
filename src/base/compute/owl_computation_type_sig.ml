@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Owl_types
@@ -8,43 +8,51 @@ open Owl_types
 (* Functor of making the symbols of a computation graph. *)
 
 module type Sig = sig
-
   module Device : Owl_types_computation_device.Sig
 
   open Device
 
-
   (** {6 Type definition} *)
 
-  type state = Valid | Invalid
-  (** TODO *)
+  type state =
+    | Valid
+    | Invalid (** TODO *)
 
   type t = attr Owl_graph.node
   (** TODO *)
 
-  and block = {
-    size           : int;      (* the number of elements of the block *)
-    block_id       : int;      (* id of the block *)
-    mutable active : t option; (* the node whose memory is being stored (if any) *)
-    mutable memory : value;    (* the value of the active node *)
-    mutable nodes  : t list;   (* the nodes sharing the memory block *)
-  }
+  and block =
+    { size : int
+    ; (* the number of elements of the block *)
+      block_id : int
+    ; (* id of the block *)
+      mutable active : t option
+    ; (* the node whose memory is being stored (if any) *)
+      mutable memory : value
+    ; (* the value of the active node *)
+      mutable nodes : t list (* the nodes sharing the memory block *)
+    }
   (**
   ``block`` type keeps a reference to a block of memory and to the nodes
   sharing that block.
    *)
 
-  and attr = {
-    mutable op     : op;                        (* operation stored in this node *)
-    mutable freeze : bool;                      (* whether or not a node can link to other nodes *)
-    mutable reuse  : bool;                      (* whether others can reuse the allocated memory *)
-    mutable state  : state;                     (* state to show whether re-evaluation is needed *)
-    mutable shape  : (int array option) array;  (* shape of the output values stored in the node *)
-    mutable value  : value array;               (* output values of the node *)
-    mutable block  : (block array) option;      (* the memory blocks to store the node values *)
-  }
+  and attr =
+    { mutable op : op
+    ; (* operation stored in this node *)
+      mutable freeze : bool
+    ; (* whether or not a node can link to other nodes *)
+      mutable reuse : bool
+    ; (* whether others can reuse the allocated memory *)
+      mutable state : state
+    ; (* state to show whether re-evaluation is needed *)
+      mutable shape : int array option array
+    ; (* shape of the output values stored in the node *)
+      mutable value : value array
+    ; (* output values of the node *)
+      mutable block : block array option (* the memory blocks to store the node values *)
+    }
   (** TODO *)
-
 
   and arr = Arr of t
 
@@ -75,6 +83,7 @@ module type Sig = sig
     | Repeat                        of int array
     | Pad                           of elt * int list list
     | Concatenate                   of int
+    | Stack                         of int
     | Split                         of int * int array
     | Draw                          of int * int
     | Map                           of (elt -> elt)
@@ -84,7 +93,8 @@ module type Sig = sig
     | OfArray                       of int array
     | Delay                         of (A.arr -> A.arr)
     | DelayArray                    of int array * (A.arr array -> A.arr)
-    | LazyPrint                     of int option * int option * bool option * (A.elt -> string) option
+    | LazyPrint                     of
+        int option * int option * bool option * (A.elt -> string) option
     | Abs
     | Neg
     | Floor
@@ -108,16 +118,19 @@ module type Sig = sig
     | Asinh
     | Acosh
     | Atanh
-    | Min                           of int
-    | Max                           of int
-    | Sum                           of int
+    | Min                           of bool * int
+    | Max                           of bool * int
+    | Sum                           of bool * int
     | SumReduce                     of int array
     | Signum
     | Sigmoid
     | Relu
+    | Dawsn
     | Min'
     | Max'
     | Sum'
+    | LogSumExp'
+    | LogSumExp                     of bool * int
     | L1norm'
     | L2norm'
     | L2NormSqr'
@@ -241,8 +254,7 @@ module type Sig = sig
     | Scalar_Acosh
     | Scalar_Atanh
     | Scalar_Relu
+    | Scalar_Dawsn
     | Scalar_Sigmoid
-    | Fused_Adagrad                 of float * float
-  (** TODO *)
-
+    | Fused_Adagrad                 of float * float (** TODO *)
 end

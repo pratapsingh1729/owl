@@ -1,12 +1,11 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 open Owl_types_common
 
 module type Common = sig
-
   (* types and constants *)
 
   type arr
@@ -73,6 +72,8 @@ module type Common = sig
 
   val concatenate : ?axis:int -> arr array -> arr
 
+  val stack : ?axis:int -> arr array -> arr
+
   val squeeze : ?axis:int array -> arr -> arr
 
   val expand : ?hi:bool -> arr -> int -> arr
@@ -85,7 +86,13 @@ module type Common = sig
 
   val one_hot : int -> arr -> arr
 
-  val print : ?max_row:int -> ?max_col:int -> ?header:bool -> ?fmt:(elt -> string) -> arr -> unit
+  val print
+    :  ?max_row:int
+    -> ?max_col:int
+    -> ?header:bool
+    -> ?fmt:(elt -> string)
+    -> arr
+    -> unit
 
   (* mathematical functions *)
 
@@ -135,11 +142,11 @@ module type Common = sig
 
   val atanh : arr -> arr
 
-  val min : ?axis:int -> arr -> arr
+  val min : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val max : ?axis:int -> arr -> arr
+  val max : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
-  val sum : ?axis:int -> arr -> arr
+  val sum : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
   val sum_reduce : ?axis:int array -> arr -> arr
 
@@ -181,7 +188,6 @@ module type Common = sig
 
   val fma : arr -> arr -> arr -> arr
 
-
   (** {6 Iterate array elements}  *)
 
   val iteri : (int -> elt -> unit) -> arr -> unit
@@ -203,7 +209,6 @@ module type Common = sig
   val scani : ?axis:int -> (int -> elt -> elt -> elt) -> arr -> arr
 
   val scan : ?axis:int -> (elt -> elt -> elt) -> arr -> arr
-
 
   (** {6 Examination & Comparison}  *)
 
@@ -306,14 +311,16 @@ module type Common = sig
   val of_array : elt array -> int array -> arr
 
   val of_arrays : elt array array -> arr
-
 end
 
 module type Real = sig
-
   type elt
 
   type arr
+
+  val log_sum_exp' : arr -> elt
+
+  val log_sum_exp : ?axis:int -> ?keep_dims:bool -> arr -> arr
 
   val sum_slices : ?axis:int -> arr -> arr
 
@@ -322,6 +329,8 @@ module type Real = sig
   val sigmoid : arr -> arr
 
   val relu : arr -> arr
+
+  val dawsn : arr -> arr
 
   val l1norm' : arr -> elt
 
@@ -356,11 +365,9 @@ module type Real = sig
   val float_to_elt : float -> elt
 
   val elt_to_float : elt -> float
-
 end
 
 module type NN = sig
-
   type arr
 
   (* Neural network related functions *)

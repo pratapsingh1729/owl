@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Plot Module *)
@@ -104,21 +104,21 @@ type axis =
 (* Specification to configure a plot *)
 
 type spec =
-  | RGB of int * int * int
-  | LineStyle of int
-  | LineWidth of float
-  | Marker of string
-  | MarkerSize of float
+  | RGB         of int * int * int
+  | LineStyle   of int
+  | LineWidth   of float
+  | Marker      of string
+  | MarkerSize  of float
   | Fill
   | FillPattern of int
   | Contour
-  | Altitude of float
-  | Azimuth of float
-  | ZLine of axis
+  | Altitude    of float
+  | Azimuth     of float
+  | ZLine       of axis
   | NoMagColor
   | Curtain
   | Faceted
-  | Axis of axis
+  | Axis        of axis
 
 let _get_rgb l default_val =
   let l =
@@ -1684,7 +1684,7 @@ let wblplot ?(h = _default_handle) ?(spec = []) ?(lambda = 1.) ?(k = 1.) x =
   let p3y, p3x = Owl_stats.third_quartile y, Owl_stats.third_quartile x in
   let left, right = Owl_stats.minmax x in
   let up, down = Owl_stats.minmax y in
-  (* prepare the closure; note the change to log sacle *)
+  (* prepare the closure; note the change to log scale *)
   let p = h.pages.(h.current_page) in
   let color = _get_rgb spec p.fgcolor in
   let r, g, b = color in
@@ -1713,7 +1713,7 @@ let wblplot ?(h = _default_handle) ?(spec = []) ?(lambda = 1.) ?(k = 1.) x =
 
 let _ecdf_dist a b p =
   (* find the ecdf value of probability value p; (a, b) is the output of
-    Stats.ecdf *)
+     Stats.ecdf *)
   let rec _find_rec x lst i =
     match lst with
     | hd :: tl -> if hd > x then i - 1 else _find_rec x tl (i + 1)
@@ -1732,7 +1732,7 @@ let qqplot
     y
   =
   (* TODO: support matrix input; add support for `pvec` argument;
-    plot the larger data input on x-axis *)
+     plot the larger data input on x-axis *)
   let open Plplot in
   let y = Owl_dense_matrix.D.to_array y |> Owl_stats.sort ~inc:true in
   let n = Array.length y in

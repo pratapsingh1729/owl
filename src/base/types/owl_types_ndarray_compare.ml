@@ -1,13 +1,10 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
-
 module type Sig = sig
-
   include Owl_types_ndarray_eltcmp.Sig
-
 
   val is_zero : arr -> bool
 
@@ -38,5 +35,4 @@ module type Sig = sig
   val approx_elt_equal : ?eps:float -> arr -> arr -> arr
 
   val approx_elt_equal_scalar : ?eps:float -> arr -> elt -> arr
-
 end

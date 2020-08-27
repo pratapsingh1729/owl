@@ -1,3 +1,8 @@
+(*
+ * OWL - OCaml Scientific and Engineering Computing
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
+ *)
+
 module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
   include Owl_algodiff_types.Make (A)
   module A = A
@@ -10,7 +15,7 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
     !_global_tag
 
 
-  (* hepler functions of the core AD component *)
+  (* helper functions of the core AD component *)
 
   let reset_zero = function
     | F _    -> F A.(float_to_elt 0.)
@@ -59,8 +64,25 @@ module Make (A : Owl_types_ndarray_algodiff.Sig) = struct
 
   let shape x =
     match primal' x with
+    | F _    -> [||]
     | Arr ap -> A.shape ap
     | _      -> failwith "error: AD.shape"
+
+
+  let rec is_float x =
+    match x with
+    | Arr _ -> false
+    | F _   -> true
+    | DF _  -> is_float (primal' x)
+    | DR _  -> is_float (primal' x)
+
+
+  let rec is_arr x =
+    match x with
+    | Arr _ -> false
+    | F _   -> true
+    | DF _  -> is_arr (primal' x)
+    | DR _  -> is_arr (primal' x)
 
 
   let row_num x = (shape x).(0)

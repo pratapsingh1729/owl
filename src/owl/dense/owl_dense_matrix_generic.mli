@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (**
@@ -16,14 +16,15 @@ the magnitude of ``x``; in case both ``x`` and ``y`` have the same magnitudes, `
 is less than ``x`` if the phase of ``x`` is less than the phase of ``y``; 3) less or
 equal, greater, greater or equal relation can be further defined atop of the
 aforementioned conventions.
+
+The generic module supports operations for the following Bigarry element types:
+Int8_signed, Int8_unsigned, Int16_signed, Int16_unsigned, Int32, Int64,
+Float32, Float64, Complex32, Complex64.
  *)
 
 open Bigarray
-
 open Owl_types
-
 open Owl_dense_ndarray_generic
-
 
 (** {6 Type definition} *)
 
@@ -32,9 +33,7 @@ type ('a, 'b) t = ('a, 'b, c_layout) Genarray.t
 N-dimensional array type, i.e. Bigarray Genarray type.
  *)
 
-
 (** {6 Create matrices}  *)
-
 
 val empty : ('a, 'b) kind -> int -> int -> ('a, 'b) t
 (**
@@ -117,10 +116,16 @@ follow a uniform distribution in ``(0,1)`` interval. ``uniform ~scale:a m n``
 adjusts the interval to ``(0,a)``.
  *)
 
- val gaussian : ('a, 'b) kind -> ?mu:'a -> ?sigma:'a -> int -> int -> ('a, 'b) t
+val gaussian : ('a, 'b) kind -> ?mu:'a -> ?sigma:'a -> int -> int -> ('a, 'b) t
 (**
 ``gaussian m n`` creates an ``m`` by ``n`` matrix where all the elements in ``x``
 follow a Gaussian distribution with specified sigma. By default ``sigma = 1``.
+ *)
+
+val poisson : ('a, 'b) kind -> mu:float -> int -> int -> ('a, 'b) t
+(**
+``poisson m n`` creates an ``m`` by ``n`` matrix where all the elements in ``x``
+follow a Poisson distribution with specified rate mu.
  *)
 
 val semidef : (float, 'b) kind -> int -> (float, 'b) t
@@ -140,7 +145,15 @@ val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
 ``logspace base a b n`` ... the default value of base is ``e``.
  *)
 
-val meshgrid : ('a, 'b) kind -> 'a -> 'a -> 'a -> 'a -> int -> int -> ('a, 'b) t * ('a, 'b) t
+val meshgrid
+  :  ('a, 'b) kind
+  -> 'a
+  -> 'a
+  -> 'a
+  -> 'a
+  -> int
+  -> int
+  -> ('a, 'b) t * ('a, 'b) t
 (**
 ``meshgrid a1 b1 a2 b2 n1 n2`` is similar to the ``meshgrid`` function in
 Matlab. It returns two matrices ``x`` and ``y`` where the row vectors in ``x`` are
@@ -233,7 +246,7 @@ length, the return will be an rectangular matrix.
 val hadamard : ('a, 'b) kind -> int -> ('a, 'b) t
 (**
 ``hadamard k n`` constructs a hadamard matrix of order ``n``. For a hadamard ``H``,
-we have ``H'*H = n*I``. Currrently, this function handles only the cases where
+we have ``H'*H = n*I``. Currently, this function handles only the cases where
 ``n``, ``n/12``, or ``n/20`` is a power of 2.
  *)
 
@@ -245,7 +258,6 @@ val magic : ('a, 'b) kind -> int -> ('a, 'b) t
 There are three different algorithms to deal with ``n`` is odd, singly even,
 and doubly even respectively.
  *)
-
 
 (** {6 Obtain basic properties}  *)
 
@@ -299,7 +311,6 @@ val kind : ('a, 'b) t -> ('a, 'b) kind
 ``kind x`` returns the type of matrix ``x``.
  *)
 
-
 (** {6 Manipulate a matrix}  *)
 
 val get : ('a, 'b) t -> int -> int -> 'a
@@ -348,6 +359,18 @@ the values in ``y``. ``y`` must have the same shape as the one defined by ``axis
 About the slice definition of ``axis``, please refer to ``slice`` function.
  *)
 
+val get_fancy_ext : index array -> ('a, 'b) t -> ('a, 'b) t
+(**
+This function is used for extended  indexing operator since  ocaml 4.10.0.
+The indexing and slicing syntax become much ligher.
+ *)
+
+val set_fancy_ext : index array -> ('a, 'b) t -> ('a, 'b) t -> unit
+(**
+This function is used for extended  indexing operator since  ocaml 4.10.0.
+The indexing and slicing syntax become much ligher.
+ *)
+
 val get_slice : int list list -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``get_slice axis x`` aims to provide a simpler version of ``get_fancy``.
@@ -365,6 +388,16 @@ represents a range, i.e., ``R`` constructor.
 
 E.g., ``[[];[0;3];[0]]`` is equivalent to ``[R []; R [0;3]; R [0]]``.
  *)
+
+val get_slice_ext : int list array -> ('a, 'b) t -> ('a, 'b) t
+(**
+Please refer to Ndarray document.
+*)
+
+val set_slice_ext : int list array -> ('a, 'b) t -> ('a, 'b) t -> unit
+(**
+Please refer to Ndarray document.
+*)
 
 val row : ('a, 'b) t -> int -> ('a, 'b) t
 (**
@@ -405,7 +438,7 @@ val resize : ?head:bool -> ('a, 'b) t -> int array -> ('a, 'b) t
 ``resize x s`` please refer to the Ndarray document.
  *)
 
-val reshape :('a, 'b) t -> int array -> ('a, 'b) t
+val reshape : ('a, 'b) t -> int array -> ('a, 'b) t
 (**
 ``reshape x s`` returns a new ``m`` by ``n`` matrix from the ``m'`` by ``n'``
 matrix ``x``. Note that ``(m * n)`` must be equal to ``(m' * n')``, and the
@@ -586,7 +619,6 @@ increasing order. Note that the returned index ndarray has the same shape as
 that of ``x``, and the indices are 1D indices.
  *)
 
-
 (**{6 Iteration functions} *)
 
 val iteri : (int -> 'a -> unit) -> ('a, 'b) t -> unit
@@ -620,7 +652,7 @@ val foldi : ?axis:int -> (int -> 'a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b)
 ``foldi ~axis f a x`` folds (or reduces) the elements in ``x`` from left along
 the specified ``axis`` using passed in function ``f``. ``a`` is the initial
 element and in ``f i acc b`` ``acc`` is the accumulater and ``b`` is one of the
-elemets in ``x`` along the same axis. Note that ``i`` is 1d index of ``b``.
+elements in ``x`` along the same axis. Note that ``i`` is 1d index of ``b``.
  *)
 
 val fold : ?axis:int -> ('a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b) t
@@ -661,7 +693,12 @@ val iteri_2d : (int -> int -> 'a -> unit) -> ('a, 'b) t -> unit
 val mapi_2d : (int -> int -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
 (** Similar to `mapi` but 2d indices ``(i,j)`` are passed to the user function. *)
 
-val foldi_2d : ?axis:int -> (int -> int -> 'a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b) t
+val foldi_2d
+  :  ?axis:int
+  -> (int -> int -> 'a -> 'a -> 'a)
+  -> 'a
+  -> ('a, 'b) t
+  -> ('a, 'b) t
 (** Similar to `foldi` but 2d indices ``(i,j)`` are passed to the user function. *)
 
 val scani_2d : ?axis:int -> (int -> int -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
@@ -688,7 +725,7 @@ val iter2 : ('a -> 'b -> unit) -> ('a, 'c) t -> ('b, 'd) t -> unit
 val map2i : (int -> 'a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``map2i f x y`` applies ``f`` to two elements of the same position in both ``x``
-and ``y``. Note that 1d index is passed to funciton ``f``.
+and ``y``. Note that 1d index is passed to function ``f``.
  *)
 
 val map2 : ('a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
@@ -707,7 +744,11 @@ val iter_rows : (('a, 'b) t -> unit) -> ('a, 'b) t -> unit
 Similar to ``iteri_rows`` except row number is not passed to ``f``.
  *)
 
-val iter2i_rows : (int -> ('a, 'b) t -> ('a, 'b) t -> unit) -> ('a, 'b) t -> ('a, 'b) t -> unit
+val iter2i_rows
+  :  (int -> ('a, 'b) t -> ('a, 'b) t -> unit)
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> unit
 (** ``iter2_rows f x y`` iterates rows of two matrices ``x`` and ```y``. *)
 
 val iter2_rows : (('a, 'b) t -> ('a, 'b) t -> unit) -> ('a, 'b) t -> ('a, 'b) t -> unit
@@ -833,7 +874,6 @@ val map_at_col : ('a -> 'a) -> ('a, 'b) t -> int -> ('a, 'b) t
 ``map_at_col f x i`` is similar to ``mapi_at_col`` except that the coordinates
 of an element is not passed to ``f``.
  *)
-
 
 (** {6 Examination & Comparison} *)
 
@@ -1103,7 +1143,6 @@ ndarray/matrix wherein ``1`` indicates that the element ``b`` from ``x`` is
 considered as approximately equal to ``a``, namely ``abs (a - b) < eps``.
  *)
 
-
 (** {6 Randomisation functions}  *)
 
 val draw_rows : ?replacement:bool -> ('a, 'b) t -> int -> ('a, 'b) t * int array
@@ -1120,12 +1159,22 @@ also returned in an int array along with the selected columns. The parameter
 ``replacement`` indicates whether the drawing is by replacement or not.
  *)
 
-val draw_rows2 : ?replacement:bool -> ('a, 'b) t -> ('a, 'b) t -> int -> ('a, 'b) t * ('a, 'b) t * int array
+val draw_rows2
+  :  ?replacement:bool
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int
+  -> ('a, 'b) t * ('a, 'b) t * int array
 (**
 ``draw_rows2 x y c`` is similar to ``draw_rows`` but applies to two matrices.
  *)
 
-val draw_cols2 : ?replacement:bool -> ('a, 'b) t -> ('a, 'b) t -> int -> ('a, 'b) t * ('a, 'b) t * int array
+val draw_cols2
+  :  ?replacement:bool
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> int
+  -> ('a, 'b) t * ('a, 'b) t * int array
 (**
 ``draw_col2 x y c`` is similar to ``draw_cols`` but applies to two matrices.
  *)
@@ -1140,12 +1189,11 @@ val shuffle_cols : ('a, 'b) t -> ('a, 'b) t
 ``shuffle_cols x`` shuffles all the columns in matrix ``x``.
  *)
 
-val shuffle: ('a, 'b) t -> ('a, 'b) t
+val shuffle : ('a, 'b) t -> ('a, 'b) t
 (**
 ``shuffle x`` shuffles all the elements in ``x`` by first shuffling along the
 rows then shuffling along columns. It is equivalent to ``shuffle_cols (shuffle_rows x)``.
  *)
-
 
 (** {6 Input/Output functions}  *)
 
@@ -1184,7 +1232,13 @@ val to_cols : ('a, 'b) t -> ('a, 'b) t array
 
 val of_cols : ('a, 'b) t array -> ('a, 'b) t
 
-val print : ?max_row:int -> ?max_col:int -> ?header:bool -> ?fmt:('a -> string) -> ('a, 'b) t -> unit
+val print
+  :  ?max_row:int
+  -> ?max_col:int
+  -> ?header:bool
+  -> ?fmt:('a -> string)
+  -> ('a, 'b) t
+  -> unit
 (**
 ``print x`` pretty prints matrix ``x`` without headings.
  *)
@@ -1252,7 +1306,7 @@ val im_z2d : (Complex.t, complex64_elt) t -> (float, float64_elt) t
 ``im_d2z x`` returns all the imaginary components of ``x`` in a new ndarray of same shape.
  *)
 
-val min : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val min : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``min x`` returns the minimum of all elements in ``x`` along specified ``axis``.
 If no axis is specified, ``x`` will be flattened and the minimum of all the
@@ -1267,7 +1321,7 @@ val min' : ('a, 'b) t -> 'a
 in scalar value.
  *)
 
-val max : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val max : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``max x`` returns the maximum of all elements in ``x`` along specified ``axis``.
 If no axis is specified, ``x`` will be flattened and the maximum of all the
@@ -1282,7 +1336,7 @@ val max' : ('a, 'b) t -> 'a
 in scalar value.
  *)
 
-val minmax : ?axis:int -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
+val minmax : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
 (**
 ``minmax' x`` returns ``(min_v, max_v)``, ``min_v`` is the minimum value in ``x``
 while ``max_v`` is the maximum.
@@ -1316,17 +1370,17 @@ val trace : ('a, 'b) t -> 'a
 ``trace x`` returns the sum of diagonal elements in ``x``.
  *)
 
-val sum : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val sum : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``sum_ axis x`` sums the elements in ``x`` along specified ``axis``.
  *)
 
-val sum': ('a, 'b) t -> 'a
+val sum' : ('a, 'b) t -> 'a
 (**
 ``sum x`` returns the summation of all the elements in ``x``.
  *)
 
-val prod : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val prod : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``prod_ axis x`` multiplies the elements in ``x`` along specified ``axis``.
  *)
@@ -1336,7 +1390,7 @@ val prod' : ('a, 'b) t -> 'a
 ``prod x`` returns the product of all the elements in ``x``.
  *)
 
-val mean : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val mean : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``mean ~axis x`` calculates the mean along specified ``axis``.
  *)
@@ -1346,7 +1400,7 @@ val mean' : ('a, 'b) t -> 'a
 ``mean' x`` calculates the mean of all the elements in ``x``.
  *)
 
-val var : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val var : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``var ~axis x`` calculates the variance along specified ``axis``.
  *)
@@ -1356,7 +1410,7 @@ val var' : ('a, 'b) t -> 'a
 ``var' x`` calculates the variance of all the elements in ``x``.
  *)
 
-val std : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val std : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``std ~axis`` calculates the standard deviation along specified ``axis``.
  *)
@@ -1366,23 +1420,33 @@ val std' : ('a, 'b) t -> 'a
 ``std' x`` calculates the standard deviation of all the elements in ``x``.
  *)
 
-val sum_rows : ('a, 'b) t -> ('a, 'b) t
+val sem : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
+(**
+``sem ~axis`` calculates the standard deviation along specified ``axis``.
+ *)
+
+val sem' : ('a, 'b) t -> 'a
+(**
+``sem' x`` calculates the standard deviation of all the elements in ``x``.
+ *)
+
+val sum_rows : ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``sum_rows x`` returns the summation of all the row vectors in ``x``.
  *)
 
-val sum_cols : ('a, 'b) t -> ('a, 'b) t
+val sum_cols : ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``sum_cols`` returns the summation of all the column vectors in ``x``.
  *)
 
-val mean_rows : ('a, 'b) t -> ('a, 'b) t
+val mean_rows : ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``mean_rows x`` returns the mean value of all row vectors in ``x``. It is
  equivalent to ``div_scalar (sum_rows x) (float_of_int (row_num x))``.
  *)
 
-val mean_cols : ('a, 'b) t -> ('a, 'b) t
+val mean_cols : ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``mean_cols x`` returns the mean value of all column vectors in ``x``.
  It is equivalent to ``div_scalar (sum_cols x) (float_of_int (col_num x))``.
@@ -1460,7 +1524,7 @@ val reci_tol : ?tol:'a -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``reci_tol ~tol x`` computes the reciprocal of every element in ``x``. Different
 from ``reci``, ``reci_tol`` sets the elements whose ``abs`` value smaller than ``tol``
-to zeros. If ``tol`` is not specified, the defautl ``Owl_utils.eps Float32`` will
+to zeros. If ``tol`` is not specified, the default ``Owl_utils.eps Float32`` will
 be used. For complex numbers, refer to Owl's doc to see how to compare.
  *)
 
@@ -1710,7 +1774,13 @@ val log_sum_exp' : (float, 'a) t -> float
 the elements in ``x``.
  *)
 
-val l1norm : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val log_sum_exp : ?axis:int -> ?keep_dims:bool -> (float, 'a) t -> (float, 'a) t
+(**
+``log_sum_exp ~axis x`` computes the logarithm of the sum of exponentials of all
+the elements in ``x`` along axis ``axis``.
+ *)
+
+val l1norm : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l1norm x`` calculates the l1-norm of of ``x`` along specified axis.
  *)
@@ -1720,7 +1790,7 @@ val l1norm' : ('a, 'b) t -> 'a
 ``l1norm x`` calculates the l1-norm of all the element in ``x``.
  *)
 
-val l2norm : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val l2norm : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l2norm x`` calculates the l2-norm of of ``x`` along specified axis.
  *)
@@ -1730,7 +1800,7 @@ val l2norm' : ('a, 'b) t -> 'a
 ``l2norm x`` calculates the l2-norm of all the element in ``x``.
  *)
 
-val l2norm_sqr : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
+val l2norm_sqr : ?axis:int -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (**
 ``l2norm x`` calculates the square l2-norm of of ``x`` along specified axis.
  *)
@@ -1742,16 +1812,26 @@ of all elements in ``x``. The function uses conjugate transpose in the product,
 hence it always returns a float number.
  *)
 
-val vecnorm : ?axis:int -> ?p:float -> ('a, 'b) t -> ('a, 'b) t
+val vecnorm : ?axis:int -> ?p:float -> ?keep_dims:bool -> ('a, 'b) t -> ('a, 'b) t
 (** Refer to :doc:`owl_dense_ndarray_generic`. *)
 
 val vecnorm' : ?p:float -> ('a, 'b) t -> 'a
 (** Refer to :doc:`owl_dense_ndarray_generic`. *)
 
-val max_pool : ?padding:padding -> (float, 'a) t -> int array -> int array -> (float, 'a) t
+val max_pool
+  :  ?padding:padding
+  -> (float, 'a) t
+  -> int array
+  -> int array
+  -> (float, 'a) t
 (** Refer to :doc:`owl_dense_ndarray_generic`. *)
 
-val avg_pool : ?padding:padding -> (float, 'a) t -> int array -> int array -> (float, 'a) t
+val avg_pool
+  :  ?padding:padding
+  -> (float, 'a) t
+  -> int array
+  -> int array
+  -> (float, 'a) t
 (** Refer to :doc:`owl_dense_ndarray_generic`. *)
 
 val cumsum : ?axis:int -> ('a, 'b) t -> ('a, 'b) t
@@ -1806,10 +1886,82 @@ The elements in ``x`` are clipped by ``amin`` and ``amax``, and they will be bet
 ``0.`` and ``1.`` after conversion to represents the intensity.
  *)
 
-val lgamma : ('a, 'b) t-> ('a, 'b) t
+val lgamma : ('a, 'b) t -> ('a, 'b) t
 (**
 ``lgamma x`` computes the loggamma of the elements in ``x`` and returns the result in
 a new matrix.
+ *)
+
+val dawsn : ('a, 'b) t -> ('a, 'b) t
+(**
+``dawsn x`` computes the Dawson function of the elements in ``x`` and returns the result in
+a new matrix.
+ *)
+
+val i0 : ('a, 'b) t -> ('a, 'b) t
+(**
+``i0 x`` computes the modified Bessel function of order 0 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val i0e : ('a, 'b) t -> ('a, 'b) t
+(**
+``i0e x`` computes the exponentially scaled modified Bessel function of order 0 of the elements in ``x`` 
+and returns the result in a new ndarray.
+ *)
+
+val i1 : ('a, 'b) t -> ('a, 'b) t
+(**
+``i1 x`` computes the modified Bessel function of order 1 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val i1e : ('a, 'b) t -> ('a, 'b) t
+(**
+``i1e x`` computes the exponentially scaled modified Bessel function of order 1 of the elements in ``x`` 
+and returns the result in a new ndarray.
+ *)
+
+val iv : v:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+(**
+``iv v x`` computes modified Bessel function of ``x`` of real order ``v``
+ *)
+
+val scalar_iv : v:'a -> ('a, 'b) t -> ('a, 'b) t
+(**
+``scalar_iv v x`` computes the modified Bessel function of ``x`` of real order ``v``.
+ *)
+
+val iv_scalar : v:('a, 'b) t -> 'a -> ('a, 'b) t
+(**
+``iv_scalar v x`` computes modified Bessel function of ``x`` of real order ``v``
+ *)
+
+val j0 : ('a, 'b) t -> ('a, 'b) t
+(**
+``j0 x`` computes the Bessel function of order 0 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val j1 : ('a, 'b) t -> ('a, 'b) t
+(**
+``j1 x`` computes the Bessel function of order 1 of the elements in ``x`` and returns the result
+in a new ndarray.
+ *)
+
+val jv : v:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+(**
+``jv v x`` computes Bessel function the first kind of ``x`` of real order ``v``
+ *)
+
+val scalar_jv : v:'a -> ('a, 'b) t -> ('a, 'b) t
+(**
+``scalar_jv v x`` computes the Bessel function of the first kind of ``x`` of real order ``v``.
+ *)
+
+val jv_scalar : v:('a, 'b) t -> 'a -> ('a, 'b) t
+(**
+``jv_scalar v x`` computes Bessel function of the first kind of ``x`` of real order ``v``
  *)
 
 (** {6 Binary math operators}  *)
@@ -2014,7 +2166,6 @@ between the elements of ``a`` and the matrix ``b``.
 val fma : ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 (** ``fma x y z`` calculates the `fused multiply add`, i.e. ``(x * y) + z``. *)
 
-
 (** {6 Cast functions}  *)
 
 val cast : ('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
@@ -2063,7 +2214,6 @@ val cast_d2c : (float, float64_elt) t -> (Complex.t, complex32_elt) t
 (**
 ``cast_d2c x`` casts ``x`` from ``float64`` to ``complex32``.
  *)
-
 
 (** {6 In-place modification}  *)
 
@@ -2114,155 +2264,163 @@ val max_ : out:('a, 'b) t -> axis:int -> ('a, 'b) t -> unit
 
 val add_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``add_ x y`` is simiar to ``add`` function but the output is written to
+``add_ x y`` is similar to ``add`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val sub_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``sub_ x y`` is simiar to ``sub`` function but the output is written to
+``sub_ x y`` is similar to ``sub`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val mul_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``mul_ x y`` is simiar to ``mul`` function but the output is written to
+``mul_ x y`` is similar to ``mul`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val div_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``div_ x y`` is simiar to ``div`` function but the output is written to
+``div_ x y`` is similar to ``div`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val pow_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``pow_ x y`` is simiar to ``pow`` function but the output is written to
+``pow_ x y`` is similar to ``pow`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val atan2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``atan2_ x y`` is simiar to ``atan2`` function but the output is written to
+``atan2_ x y`` is similar to ``atan2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val hypot_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``hypot_ x y`` is simiar to ``hypot`` function but the output is written to
+``hypot_ x y`` is similar to ``hypot`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val fmod_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``fmod_ x y`` is simiar to ``fmod`` function but the output is written to
+``fmod_ x y`` is similar to ``fmod`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val min2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``min2_ x y`` is simiar to ``min2`` function but the output is written to
+``min2_ x y`` is similar to ``min2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val max2_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``max2_ x y`` is simiar to ``max2`` function but the output is written to
+``max2_ x y`` is similar to ``max2`` function but the output is written to
 ``out``. You need to make sure ``out`` is big enough to hold the output result.
  *)
 
 val add_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``add_scalar_ x y`` is simiar to ``add_scalar`` function but the output is
+``add_scalar_ x y`` is similar to ``add_scalar`` function but the output is
 written to ``x``.
  *)
 
 val sub_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``sub_scalar_ x y`` is simiar to ``sub_scalar`` function but the output is
+``sub_scalar_ x y`` is similar to ``sub_scalar`` function but the output is
 written to ``x``.
  *)
 
 val mul_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``mul_scalar_ x y`` is simiar to ``mul_scalar`` function but the output is
+``mul_scalar_ x y`` is similar to ``mul_scalar`` function but the output is
 written to ``x``.
  *)
 
 val div_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``div_scalar_ x y`` is simiar to ``div_scalar`` function but the output is
+``div_scalar_ x y`` is similar to ``div_scalar`` function but the output is
 written to ``x``.
  *)
 
 val pow_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``pow_scalar_ x y`` is simiar to ``pow_scalar`` function but the output is
+``pow_scalar_ x y`` is similar to ``pow_scalar`` function but the output is
 written to ``x``.
  *)
 
 val atan2_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``atan2_scalar_ x y`` is simiar to ``atan2_scalar`` function but the output is
+``atan2_scalar_ x y`` is similar to ``atan2_scalar`` function but the output is
 written to ``x``.
  *)
 
 val fmod_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``fmod_scalar_ x y`` is simiar to ``fmod_scalar`` function but the output is
+``fmod_scalar_ x y`` is similar to ``fmod_scalar`` function but the output is
 written to ``x``.
  *)
 
 val scalar_add_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_add_ a x`` is simiar to ``scalar_add`` function but the output is
+``scalar_add_ a x`` is similar to ``scalar_add`` function but the output is
 written to ``x``.
  *)
 
 val scalar_sub_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_sub_ a x`` is simiar to ``scalar_sub`` function but the output is
+``scalar_sub_ a x`` is similar to ``scalar_sub`` function but the output is
 written to ``x``.
  *)
 
 val scalar_mul_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_mul_ a x`` is simiar to ``scalar_mul`` function but the output is
+``scalar_mul_ a x`` is similar to ``scalar_mul`` function but the output is
 written to ``x``.
  *)
 
 val scalar_div_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_div_ a x`` is simiar to ``scalar_div`` function but the output is
+``scalar_div_ a x`` is similar to ``scalar_div`` function but the output is
 written to ``x``.
  *)
 
 val scalar_pow_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_pow_ a x`` is simiar to ``scalar_pow`` function but the output is
+``scalar_pow_ a x`` is similar to ``scalar_pow`` function but the output is
 written to ``x``.
  *)
 
 val scalar_atan2_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_atan2_ a x`` is simiar to ``scalar_atan2`` function but the output is
+``scalar_atan2_ a x`` is similar to ``scalar_atan2`` function but the output is
 written to ``x``.
  *)
 
 val scalar_fmod_ : ?out:('a, 'b) t -> 'a -> ('a, 'b) t -> unit
 (**
-``scalar_fmod_ a x`` is simiar to ``scalar_fmod`` function but the output is
+``scalar_fmod_ a x`` is similar to ``scalar_fmod`` function but the output is
 written to ``x``.
  *)
 
 val fma_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``fma_ ~out x y z`` is simiar to ``fma x y z`` function but the output is
+``fma_ ~out x y z`` is similar to ``fma x y z`` function but the output is
 written to ``out``.
  *)
 
-val dot_ : ?transa:bool -> ?transb:bool -> ?alpha:'a -> ?beta:'a -> c:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
+val dot_
+  :  ?transa:bool
+  -> ?transb:bool
+  -> ?alpha:'a
+  -> ?beta:'a
+  -> c:('a, 'b) t
+  -> ('a, 'b) t
+  -> ('a, 'b) t
+  -> unit
 (** Refer to :doc:`owl_dense_matrix_generic` *)
 
 val conj_ : ?out:('a, 'b) t -> ('a, 'b) t -> unit
@@ -2492,82 +2650,78 @@ val dropout_ : ?out:('a, 'b) t -> ?rate:float -> ('a, 'b) t -> unit
 
 val elt_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_equal_ x y`` is simiar to ``elt_equal`` function but the output is
+``elt_equal_ x y`` is similar to ``elt_equal`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_not_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_not_equal_ x y`` is simiar to ``elt_not_equal`` function but the output is
+``elt_not_equal_ x y`` is similar to ``elt_not_equal`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_less_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_less_ x y`` is simiar to ``elt_less`` function but the output is written
+``elt_less_ x y`` is similar to ``elt_less`` function but the output is written
 to ``out``. You need to make sure ``out`` is big enough to hold the output
 result.
  *)
 
 val elt_greater_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_greater_ x y`` is simiar to ``elt_greater`` function but the output is
+``elt_greater_ x y`` is similar to ``elt_greater`` function but the output is
 written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_less_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_less_equal_ x y`` is simiar to ``elt_less_equal`` function but the output
+``elt_less_equal_ x y`` is similar to ``elt_less_equal`` function but the output
 is written to ``out``. You need to make sure ``out`` is big enough to hold the
 output result.
  *)
 
 val elt_greater_equal_ : ?out:('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t -> unit
 (**
-``elt_greater_equal_ x y`` is simiar to ``elt_greater_equal`` function but the
+``elt_greater_equal_ x y`` is similar to ``elt_greater_equal`` function but the
 output is written to ``out``. You need to make sure ``out`` is big enough to
 hold the output result.
  *)
 
 val elt_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_equal_scalar_ x a`` is simiar to ``elt_equal_scalar`` function but the
+``elt_equal_scalar_ x a`` is similar to ``elt_equal_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_not_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_not_equal_scalar_ x a`` is simiar to ``elt_not_equal_scalar`` function but
+``elt_not_equal_scalar_ x a`` is similar to ``elt_not_equal_scalar`` function but
 the output is written to ``x``.
  *)
 
 val elt_less_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_less_scalar_ x a`` is simiar to ``elt_less_scalar`` function but the
+``elt_less_scalar_ x a`` is similar to ``elt_less_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_greater_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_greater_scalar_ x a`` is simiar to ``elt_greater_scalar`` function but the
+``elt_greater_scalar_ x a`` is similar to ``elt_greater_scalar`` function but the
 output is written to ``x``.
  *)
 
 val elt_less_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_less_equal_scalar_ x a`` is simiar to ``elt_less_equal_scalar`` function
+``elt_less_equal_scalar_ x a`` is similar to ``elt_less_equal_scalar`` function
 but the output is written to ``x``.
  *)
 
 val elt_greater_equal_scalar_ : ?out:('a, 'b) t -> ('a, 'b) t -> 'a -> unit
 (**
-``elt_greater_equal_scalar_ x a`` is simiar to ``elt_greater_equal_scalar``
+``elt_greater_equal_scalar_ x a`` is similar to ``elt_greater_equal_scalar``
 function but the output is written to ``x``.
  *)
-
-
-
-

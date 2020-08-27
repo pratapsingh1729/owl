@@ -1,6 +1,6 @@
 /*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  */
 
 #ifndef OWL_CORE_ENGINE_H
@@ -31,7 +31,7 @@
 #endif  /* _OPENMP */
 
 
-/* Default tunable OpemMP paramters */
+/* Default tunable OpemMP parameters */
 
 #define OWL_OMP_THRESHOLD_FUN_(A) OMP_THRESHOLD ## _ ## A
 #define OWL_OMP_THRESHOLD_FUN(A) OWL_OMP_THRESHOLD_FUN_(A)

@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** Plot: high-level plotting functions. *)
@@ -41,21 +41,21 @@ type axis =
   | XYZ (** axis type *)
 
 type spec =
-  | RGB of int * int * int
-  | LineStyle of int
-  | LineWidth of float
-  | Marker of string
-  | MarkerSize of float
+  | RGB         of int * int * int
+  | LineStyle   of int
+  | LineWidth   of float
+  | Marker      of string
+  | MarkerSize  of float
   | Fill
   | FillPattern of int
   | Contour
-  | Altitude of float
-  | Azimuth of float
-  | ZLine of axis
+  | Altitude    of float
+  | Azimuth     of float
+  | ZLine       of axis
   | NoMagColor
   | Curtain
   | Faceted
-  | Axis of axis (** specification of a figure *)
+  | Axis        of axis (** specification of a figure *)
 
 (** {6 Config functions} *)
 
@@ -412,7 +412,7 @@ val qqplot
 ``qqplot ~pd ~x y `` displays a quantile-quantile plot of the quantiles of the
 sample data x versus the theoretical quantiles values from ``pd``, which by
 default is standard normal distribution. If the second argument ``x`` is a
-vector, the empirical CDF of it is used as the distribtion of x-axis data,
+vector, the empirical CDF of it is used as the distribution of x-axis data,
 otherwise the qqplot is similar to ``probplot``, showing the inverseCDF of
 meadian ``(i - 0.5)/n`` on x-axis.
 

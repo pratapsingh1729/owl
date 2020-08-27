@@ -1,6 +1,6 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 let htb = Owl_zoo_path.htb
@@ -79,7 +79,7 @@ let get_latest_vid (gid : string) (tol : float) =
     v.(Array.length v - 1))
   else (
     Owl_log.debug
-      "owl-zoo: Gist %s exceeds time tolerence %f; fetching newest vid from server"
+      "owl-zoo: Gist %s exceeds time tolerance %f; fetching newest vid from server"
       gid
       tol;
     Hashtbl.replace tb gid (v, t);

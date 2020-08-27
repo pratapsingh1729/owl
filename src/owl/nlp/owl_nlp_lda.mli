@@ -1,23 +1,24 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (** NLP: LDA module *)
 
-
 (** {6 Type definition} *)
 
-type lda_typ = SimpleLDA | FTreeLDA | LightLDA | SparseLDA
-(** Type of LDA training algorithms. *)
+type lda_typ =
+  | SimpleLDA
+  | FTreeLDA
+  | LightLDA
+  | SparseLDA (** Type of LDA training algorithms. *)
 
 type model
 (** Type of LDA model. *)
 
-
 (** {6 Core functions} *)
 
-val init : ?iter:int -> int -> (string, int) Hashtbl.t -> Owl_nlp_corpus.t -> model
+val init : ?iter:int -> int -> Owl_nlp_corpus.t -> model
 (**
 ``init ~iter k v d`` inits an LDA model for training. The default iteration is
 100.
@@ -25,13 +26,11 @@ val init : ?iter:int -> int -> (string, int) Hashtbl.t -> Owl_nlp_corpus.t -> mo
 Parameters:
   * ``iter``: number of iterations.
   * ``k``: number of topics.
-  * ``v``: vocabulary.
   * ``d``: corpus.
  *)
 
 val train : lda_typ -> model -> unit
 (** After calling ``init``, calling this function starts the training. *)
-
 
 (** {6 Helper functions} *)
 

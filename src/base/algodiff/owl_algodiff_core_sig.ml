@@ -1,3 +1,8 @@
+(*
+ * OWL - OCaml Scientific and Engineering Computing
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
+ *)
+
 module type Sig = sig
   module A : Owl_types_ndarray_algodiff.Sig
 
@@ -32,6 +37,12 @@ module type Sig = sig
   (** TODO *)
 
   val shape : t -> int array
+  (** TODO *)
+
+  val is_float : t -> bool
+  (** TODO *)
+
+  val is_arr : t -> bool
   (** TODO *)
 
   val row_num : t -> int

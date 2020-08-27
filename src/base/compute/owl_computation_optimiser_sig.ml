@@ -1,12 +1,11 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
 (* Functor of making the symbols of a computation graph. *)
 
 module type Sig = sig
-
   module Operator : Owl_computation_operator_sig.Sig
 
   open Operator.Symbol.Shape.Type
@@ -18,6 +17,4 @@ module type Sig = sig
 
   val optimise_nodes : attr Owl_graph.node array -> unit
   (** TODO *)
-
-
 end

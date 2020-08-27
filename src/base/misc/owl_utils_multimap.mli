@@ -1,11 +1,9 @@
 (*
  * OWL - OCaml Scientific and Engineering Computing
- * Copyright (c) 2016-2019 Liang Wang <liang.wang@cl.cam.ac.uk>
+ * Copyright (c) 2016-2020 Liang Wang <liang.wang@cl.cam.ac.uk>
  *)
 
-
 module Make (Ord : Map.OrderedType) : sig
-
   (** {6 Type definition} *)
 
   type key = Ord.t
@@ -13,7 +11,6 @@ module Make (Ord : Map.OrderedType) : sig
 
   type 'a t
   (** Type of a multimap. *)
-
 
   (** {6 Basic functions} *)
 
@@ -61,5 +58,4 @@ module Make (Ord : Map.OrderedType) : sig
   or ``None`` if no such binding exists. The function ``f`` has to be
   nondecreasing. Time complexity is O(log n).
    *)
-
 end
